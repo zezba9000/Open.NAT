@@ -92,9 +92,11 @@ namespace Open.Nat
                         mapping.PublicIP = IPAddress.None;
                         CreatePortMapAsync(mapping);
                         break;
-                    //case UpnpConstants.ExternalPortOnlySupportsWildcard:
-                    //    NatUtility.TraceSource.LogWarn("External Port Only Supports Wildcard");
-                    //    break;
+                    case UpnpConstants.ExternalPortOnlySupportsWildcard:
+                        NatDiscoverer.TraceSource.LogWarn("External Port Only Supports Wildcard");
+                        throw;
+                    default:
+                        throw;
                 }
             }
         }
