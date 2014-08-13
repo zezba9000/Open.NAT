@@ -37,7 +37,8 @@ namespace Open.Nat
     {
         Permanent,
         Session,
-        Manual
+        Manual,
+        ForcedSession
     }
 
 	/// <summary>
@@ -99,19 +100,19 @@ namespace Open.Nat
                 switch (value)
                 {
                     case int.MaxValue:
-                        _expiration = DateTime.MaxValue;
                         LifetimeType = MappingLifetime.Session;
                         _lifetime = 10 * 60; // ten minutes
+                        _expiration = DateTime.UtcNow.AddSeconds(_lifetime);;
                         break;
                     case 0:
-                        _expiration = DateTime.UtcNow;
                         LifetimeType = MappingLifetime.Permanent;
                         _lifetime = 0;
+                        _expiration = DateTime.UtcNow;
                         break;
                     default:
-                        _expiration = DateTime.UtcNow.AddSeconds(_lifetime);
                         LifetimeType = MappingLifetime.Manual;
                         _lifetime = value;
+                        _expiration = DateTime.UtcNow.AddSeconds(_lifetime);
                         break;
                 }
             } 
@@ -126,7 +127,7 @@ namespace Open.Nat
             internal set
             {
                 _expiration = value;
-                Lifetime = (int)(_expiration - DateTime.UtcNow).TotalSeconds;
+                _lifetime = (int)(_expiration - DateTime.UtcNow).TotalSeconds;
             }
         }
 
@@ -202,6 +203,19 @@ namespace Open.Nat
         {
         }
 
+        internal Mapping(Mapping mapping)
+        {
+            PrivateIP = mapping.PrivateIP;
+            PrivatePort = mapping.PrivatePort;
+            Protocol = mapping.Protocol;
+            PublicIP = mapping.PublicIP;
+            PublicPort = mapping.PublicPort;
+            LifetimeType = mapping.LifetimeType;
+            Description = mapping.Description;
+            _lifetime = mapping._lifetime;
+            _expiration = mapping._expiration;
+        }
+
         /// <summary>
         /// Determines whether this instance is expired.
         /// </summary>
@@ -210,12 +224,14 @@ namespace Open.Nat
         /// </remarks>
 	    public bool IsExpired ()
 		{
-			return LifetimeType != MappingLifetime.Permanent && Expiration < DateTime.UtcNow;
+			return LifetimeType != MappingLifetime.Permanent
+                && LifetimeType != MappingLifetime.ForcedSession 
+                && Expiration < DateTime.UtcNow;
 		}
 
         internal bool ShoundRenew()
         {
-            return LifetimeType != MappingLifetime.Permanent && (DateTime.UtcNow - Expiration).TotalSeconds < 5;
+            return LifetimeType == MappingLifetime.Session && IsExpired();
         }
 
         public override bool Equals(object obj)
@@ -224,7 +240,7 @@ namespace Open.Nat
             if (ReferenceEquals(this, obj)) return true;
             var m = obj as Mapping;
             if (ReferenceEquals(null, m)) return false;
-            return PublicPort == m.PublicPort && PrivateIP == m.PrivateIP && PrivatePort == m.PrivatePort;
+            return PublicPort == m.PublicPort && PrivatePort == m.PrivatePort;
         }
 
         public override int GetHashCode()

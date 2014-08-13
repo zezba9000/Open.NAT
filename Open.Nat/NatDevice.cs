@@ -36,17 +36,13 @@ using System.Threading.Tasks;
 
 namespace Open.Nat
 {
-    internal interface IMappingCollection : IEnumerable<Mapping>
-    {
-    }
-
     /// <summary>
     /// Represents a NAT device and provides access to the operation set that allows
     /// open (forward) ports, close ports and get the externa (visible) IP address.
     /// </summary>
     public abstract class NatDevice
     {
-        private readonly List<Mapping> _openedMapping = new List<Mapping>();
+        private readonly HashSet<Mapping> _openedMapping = new HashSet<Mapping>();
         protected DateTime LastSeen { get; private set; }
 
         internal void Touch()
@@ -114,12 +110,13 @@ namespace Open.Nat
 
         protected void RegisterMapping(Mapping mapping)
         {
+            _openedMapping.Remove(mapping);
             _openedMapping.Add(mapping);
         }
 
         protected void UnregisterMapping(Mapping mapping)
         {
-            _openedMapping.RemoveAll(x => x.Equals(mapping));
+            _openedMapping.RemoveWhere(x => x.Equals(mapping));
         }
 
 
@@ -130,7 +127,7 @@ namespace Open.Nat
             NatDiscoverer.TraceSource.LogInfo("{0} ports to close", mapCount);
             for (var i = 0; i < mapCount; i++)
             {
-                var mapping = _openedMapping[i];
+                var mapping = _openedMapping.ElementAt(i);
 
                 try
                 {
@@ -158,29 +155,31 @@ namespace Open.Nat
             ReleaseMapping(mappings);
         }
 
-        internal void RenewMappings()
+        internal async Task RenewMappings()
         {
             var mappings = _openedMapping.Where(x => x.ShoundRenew());
-            foreach (var mapping in mappings)
+            foreach (var mapping in mappings.ToArray())
             {
-                RenewMapping(mapping);
+                var m = mapping;
+                await RenewMapping(m);
             }
         }
 
-        private void RenewMapping(Mapping mapping)
+        private async Task RenewMapping(Mapping mapping)
         {
+            var renewMapping = new Mapping(mapping);
             try
             {
-                mapping.Expiration = DateTime.UtcNow.AddMinutes(10);
+                renewMapping.Expiration = DateTime.UtcNow.AddSeconds(mapping.Lifetime);
 
-                NatDiscoverer.TraceSource.LogInfo("Renewing mapping {0}", mapping);
-                CreatePortMapAsync(mapping);
+                NatDiscoverer.TraceSource.LogInfo("Renewing mapping {0}", renewMapping);
+                await CreatePortMapAsync(renewMapping);
                 NatDiscoverer.TraceSource.LogInfo("Next renew scheduled at: {0}",
-                                                  mapping.Expiration.ToLocalTime().TimeOfDay);
+                                                  renewMapping.Expiration.ToLocalTime().TimeOfDay);
             }
             catch (Exception)
             {
-                NatDiscoverer.TraceSource.LogInfo("Renew {0} failed", mapping);
+                NatDiscoverer.TraceSource.LogWarn("Renew {0} failed", mapping);
             }
         }
     }

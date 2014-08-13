@@ -11,11 +11,11 @@ namespace Open.Nat
         /// <summary>
         /// Use only Port Mapping Protocol
         /// </summary>
-        Pmp,
+        Pmp = 1,
 
         /// <summary>
         /// Use only Universal Plug and Play
         /// </summary>
-        Upnp
+        Upnp = 2
     }
 }

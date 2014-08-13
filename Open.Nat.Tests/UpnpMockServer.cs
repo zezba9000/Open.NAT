@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MS.Internal.Xml.XPath;
@@ -29,12 +30,25 @@ namespace Open.Nat.Tests
         private UdpClient _udpClient;
         private string _serviceUrl;
         private string _controlUrl;
-        private List<Mapping> _table; 
+        private static List<Mapping> _table = new List<Mapping>();
+        internal static readonly Timer RenewTimer = new Timer(CollectExpiredMappings, null, 0, 1000);
+
+        static void CollectExpiredMappings(object state)
+        {
+            var table = _table.ToArray();
+            foreach (var mapping in table)
+            {
+                if(mapping.NewLeaseDuration > 0)
+                {
+                    if(--mapping.NewLeaseDuration == 0)
+                        _table.Remove(mapping);
+                }
+            }
+        }
 
         public UpnpMockServer(string st)
         {
             _st = st;
-            _table = new List<Mapping>();
             _listener = new HttpListener();
             _listener.Prefixes.Add("http://127.0.0.1:5431/");
             _listener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
@@ -78,6 +92,7 @@ namespace Open.Nat.Tests
 
         private void StartServer()
         {
+
             _listener.Start();
             Task.Factory.StartNew(() => {
                 while (true)
@@ -198,22 +213,29 @@ namespace Open.Nat.Tests
         {
             var e = envelop.Descendants(XName.Get("{urn:schemas-upnp-org:service:" + _st + "}AddPortMapping")).First();
             var vals = e.Elements().ToDictionary(x => x.Name.LocalName, x=> x.Value);
-            if(vals["NewLeaseDuration"]!="0")
+            if(false && vals["NewLeaseDuration"]!="0")
             {
                 Error(725, "OnlyPermanentLeaseSupported", response);
                 return;
             }
-            _table.Add(new Mapping
-                {
-                    NewLeaseDuration = vals["NewLeaseDuration"],
-                    NewRemoteHost = vals["NewRemoteHost"],
-                    NewExternalPort= vals["NewExternalPort"],
-                    NewProtocol= vals["NewProtocol"],
-                    NewInternalPort= vals["NewInternalPort"],
-                    NewInternalClient= vals["NewInternalClient"],
-                    NewEnabled= vals["NewEnabled"],
-                    NewPortMappingDescription= vals["NewPortMappingDescription"],
-                });
+            var newMapping = new Mapping {
+                NewLeaseDuration = int.Parse(vals["NewLeaseDuration"]),
+                NewRemoteHost = vals["NewRemoteHost"],
+                NewExternalPort = vals["NewExternalPort"],
+                NewProtocol = vals["NewProtocol"],
+                NewInternalPort = vals["NewInternalPort"],
+                NewInternalClient = vals["NewInternalClient"],
+                NewEnabled = vals["NewEnabled"],
+                NewPortMappingDescription = vals["NewPortMappingDescription"],
+            };
+
+            var exists = _table.Any(x => x.Equals(newMapping));
+            if(exists )
+            {
+                Error(718, "ConflictMapping", response);
+                return;
+            }
+            _table.Add(newMapping);
             var responseXml = @"<?xml version=""1.0""?>
                 <s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/"" 
                             s:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">
@@ -315,7 +337,7 @@ namespace Open.Nat.Tests
 
     internal class Mapping
     {
-        public string NewLeaseDuration;
+        public int NewLeaseDuration;
         public string NewRemoteHost;
         public string NewExternalPort;
         public string NewProtocol;
@@ -323,5 +345,19 @@ namespace Open.Nat.Tests
         public string NewInternalClient;
         public string NewEnabled;
         public string NewPortMappingDescription;
+
+        // override object.Equals
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var other = obj as Mapping;
+            return other.NewExternalPort == NewExternalPort && other.NewInternalPort == NewInternalPort
+                   && other.NewInternalClient == NewInternalClient && other.NewProtocol == NewProtocol
+                   && other.NewRemoteHost == NewRemoteHost;
+        }
     }
 }

@@ -103,17 +103,19 @@ namespace Open.Nat
 
         public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
         {
+#if DEBUG
             return await task;
-            //var timeoutCancellationTokenSource = new CancellationTokenSource();
+#endif
+            var timeoutCancellationTokenSource = new CancellationTokenSource();
 
-            //Task completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
-            //if (completedTask == task)
-            //{
-            //    timeoutCancellationTokenSource.Cancel();
-            //    return await task;
-            //}
-            //throw new TimeoutException(
-            //    "The operation has timed out. The network is broken, router has gone or is too busy.");
+            Task completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
+            if (completedTask == task)
+            {
+                timeoutCancellationTokenSource.Cancel();
+                return await task;
+            }
+            throw new TimeoutException(
+                "The operation has timed out. The network is broken, router has gone or is too busy.");
         }
     }
 }

@@ -55,7 +55,10 @@ namespace Open.Nat.ConsoleTest
             var ip = await device.GetExternalIPAsync();
 
             sb.AppendFormat("\nYour IP: {0}", ip);
-            await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 1600, 1700, "Open.Nat Testing"));
+            await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 1600, 1700, "Open.Nat (temporary)"));
+            await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 1601, 1701, "Open.Nat (Session lifetime)"));
+            await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 1602, 1702,  0, "Open.Nat (Permanent lifetime)"));
+            await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 1603, 1703, 20, "Open.Nat (Manual lifetime)"));
             sb.AppendFormat("\nAdded mapping: {0}:1700 -> 127.0.0.1:1600\n", ip);
             sb.AppendFormat("\n+------+-------------------------------+--------------------------------+------------------------------------+-------------------------+");
             sb.AppendFormat("\n| PROT | PUBLIC (Reacheable)           | PRIVATE (Your computer)        | Descriptopn                        |                         |");
@@ -65,7 +68,7 @@ namespace Open.Nat.ConsoleTest
             foreach (var mapping in await device.GetAllMappingsAsync())
             {
                 sb.AppendFormat("\n|  {5} | {0,-20} | {1,6} | {2,-21} | {3,6} | {4,-35}|{6,25}|",
-                    ip, mapping.PublicPort, mapping.PrivateIP, mapping.PrivatePort, mapping.Description, mapping.Protocol == Protocol.Tcp ? "TCP" : "UDP", mapping.Expiration);
+                    ip, mapping.PublicPort, mapping.PrivateIP, mapping.PrivatePort, mapping.Description, mapping.Protocol == Protocol.Tcp ? "TCP" : "UDP", mapping.Expiration.ToLocalTime());
             }
             sb.AppendFormat("\n+------+----------------------+--------+-----------------------+--------+------------------------------------+-------------------------+");
 

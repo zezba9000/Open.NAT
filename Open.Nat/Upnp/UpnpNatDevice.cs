@@ -79,7 +79,7 @@ namespace Open.Nat
                         NatDiscoverer.TraceSource.LogWarn("Only Permanent Leases Supported - There is no warranty it will be closed");
                         mapping.Lifetime = 0;
                         // We create the mapping anyway. It must be released on shutdown.
-                        mapping.LifetimeType = MappingLifetime.Session;
+                        mapping.LifetimeType = MappingLifetime.ForcedSession;
                         CreatePortMapAsync(mapping);
                         break;
                     case UpnpConstants.SamePortValuesRequired:
@@ -95,6 +95,10 @@ namespace Open.Nat
                     case UpnpConstants.ExternalPortOnlySupportsWildcard:
                         NatDiscoverer.TraceSource.LogWarn("External Port Only Supports Wildcard");
                         throw;
+                    case UpnpConstants.ConflictInMappingEntry:
+                        NatDiscoverer.TraceSource.LogWarn("Conflict with an already existing mapping");
+                        throw;
+
                     default:
                         throw;
                 }
