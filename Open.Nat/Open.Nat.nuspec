@@ -17,6 +17,9 @@
     <copyright>Please see LICENSE for more details.</copyright>
     <tags>NAT TRANSVERSAL UPNP PMP PORT FORWARD</tags>
     <releaseNotes>
+      **Version 2.0.8**
+      Fixes several defects. #10, #11, #12, #13 and #14
+
       **2.0.0**
       Thus version breaks backward compatibility with v1.
       Changes the event-based discovery process' nature to an asynchronous one.
