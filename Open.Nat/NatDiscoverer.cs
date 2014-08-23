@@ -60,7 +60,7 @@ namespace Open.Nat
         /// <exception cref="NatDeviceNotFoundException">when no NAT found before cancellation</exception>
         public async Task<NatDevice> DiscoverDeviceAsync(PortMapper portMapper, CancellationTokenSource cancellationTokenSource)
         {
-            Guard.IsTrue(portMapper == PortMapper.Upnp || portMapper == PortMapper.Pmp, "poertMapper");
+            Guard.IsTrue(portMapper.HasFlag(PortMapper.Upnp) || portMapper.HasFlag(PortMapper.Pmp), "portMapper");
             Guard.IsNotNull(cancellationTokenSource, "cancellationTokenSource");
 
             var devices = await DiscoverAsync(portMapper, true, cancellationTokenSource);
@@ -80,7 +80,7 @@ namespace Open.Nat
         /// <returns>All found NAT devices</returns>
         public async Task<IEnumerable<NatDevice>> DiscoverDevicesAsync(PortMapper portMapper, CancellationTokenSource cancellationTokenSource)
         {
-            Guard.IsTrue(portMapper == PortMapper.Upnp || portMapper == PortMapper.Pmp, "poertMapper");
+            Guard.IsTrue(portMapper.HasFlag(PortMapper.Upnp) || portMapper.HasFlag(PortMapper.Pmp), "portMapper");
             Guard.IsNotNull(cancellationTokenSource, "cancellationTokenSource");
 
             var devices = await DiscoverAsync(portMapper, false, cancellationTokenSource);

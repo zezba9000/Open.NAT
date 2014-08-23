@@ -65,6 +65,9 @@ Build Status
 
 [![NuGet version](https://badge.fury.io/nu/open.nat.png)](http://badge.fury.io/nu/open.nat)
 
+### Version 2.0.9
+* Fixes defect #16
+
 ### Version 2.0.8
 * Fixes several defects. #10, #11, #12, #13 and #14
 

@@ -15,8 +15,11 @@
     <summary>Library to allow port forwarding in NAT devices that support UPNP and/or PMP.</summary>
     <language>en-US</language>
     <copyright>Please see LICENSE for more details.</copyright>
-    <tags>NAT TRANSVERSAL UPNP PMP PORT FORWARD</tags>
+    <tags>NAT TRAVERSAL UPNP PMP PORT FORWARD .NET MONO</tags>
     <releaseNotes>
+      **Version 2.0.9**
+      Fixes defects #16. Parameterless DiscoverDeviceAsync method throws exception
+
       **Version 2.0.8**
       Fixes several defects. #10, #11, #12, #13 and #14
 

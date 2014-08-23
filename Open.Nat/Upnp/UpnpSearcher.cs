@@ -126,9 +126,8 @@ namespace Open.Nat
                 if (!IsValidControllerService(serviceType)) return null;
                 NatDiscoverer.TraceSource.LogInfo("UPnP Response: Router advertised a '{0}' service!!!", serviceType);
 
-                var location = message["Location"];
+                var location = message["Location"] ?? message["AL"];
                 var locationUri = new Uri(location);
-
                 NatDiscoverer.TraceSource.LogInfo("Found device at: {0}", locationUri.ToString());
 
                 if (_devices.ContainsKey(locationUri))

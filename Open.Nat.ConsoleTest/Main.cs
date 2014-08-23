@@ -27,6 +27,8 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,8 +43,19 @@ namespace Open.Nat.ConsoleTest
             NatDiscoverer.TraceSource.Listeners.Add(new ColorConsoleTraceListener());
             Test().Wait();
 
+            Console.WriteLine("");
+            Console.WriteLine("Socket listening on port 1602. Remember, it is mapped to external port 1702!!!");
+            Console.WriteLine("Test it with http://www.canyouseeme.org/ online tool");
+
+            var endPoint = new IPEndPoint(IPAddress.Any, 1602);
+            var socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.SetIPProtectionLevel(IPProtectionLevel.Unrestricted);
+            socket.Bind(endPoint);
+            socket.Listen(4);
+
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
+            socket.Close();
         }
 
         private async static Task Test()
@@ -75,6 +88,7 @@ namespace Open.Nat.ConsoleTest
             sb.AppendFormat("\n[Removing TCP mapping] {0}:1700 -> 127.0.0.1:1600", ip);
             await device.DeletePortMapAsync(new Mapping(Protocol.Tcp, 1600, 1700));
             sb.AppendFormat("\n[Done]");
+
 
             Console.WriteLine(sb.ToString());
 /*
