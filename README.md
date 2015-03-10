@@ -20,7 +20,7 @@ How to use?
 With nuget :
 > **Install-Package Open.NAT** 
 
-Go on the [nuget website](https://www.nuget.org/packages/OpenNAT/) for more information.
+Go on the [nuget website](https://www.nuget.org/packages/Open.Nat/) for more information.
 
 Example
 --------
@@ -49,7 +49,7 @@ For more info please check the [Wiki](https://github.com/lontivero/Open.Nat/wiki
 
 Documentation
 -------------
-+ Why Open.NAT? Here you have [ten reasons](https://github.com/lontivero/Open.Nat/wiki/Why-Open.NAT%3F) that make Open.NAT a good candidate for you projects
++ Why Open.NAT? Here you have [ten reasons](https://github.com/lontivero/Open.NAT/wiki/Why-Open.NAT) that make Open.NAT a good candidate for you projects
 + [Visit the Wiki page](https://github.com/lontivero/Open.Nat/wiki)
 
 Development
