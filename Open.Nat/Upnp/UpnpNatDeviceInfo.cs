@@ -41,7 +41,7 @@ namespace Open.Nat
             {
                 var u = new Uri(serviceControlUrl);
                 IPEndPoint old = HostEndPoint;
-                serviceControlUrl = serviceControlUrl.Substring(u.GetLeftPart(UriPartial.Authority).Length);
+                serviceControlUrl = u.PathAndQuery;
 
                 NatDiscoverer.TraceSource.LogInfo("{0}: Absolute URI detected. Host address is now: {1}", old,
                                                   HostEndPoint);
