@@ -65,11 +65,18 @@ Build Status
 
 [![NuGet version](https://badge.fury.io/nu/open.nat.png)](http://badge.fury.io/nu/open.nat)
 
+https://github.com/lontivero/Open.NAT/issues/20
+### Version 2.0.10
+Fixes [defect #20](https://github.com/lontivero/Open.NAT/issues/20). Absolute service control URL path and query miscalculated.   
+
+
 ### Version 2.0.9
-* Fixes defect #16
+* Fixes [defect #16](https://github.com/lontivero/Open.NAT/issues/16)
 
 ### Version 2.0.8
-* Fixes several defects. #10, #11, #12, #13 and #14
+* Fixes several defects. [#10](https://github.com/lontivero/Open.NAT/issues/10), 
+[#11](https://github.com/lontivero/Open.NAT/issues/11), [#12](https://github.com/lontivero/Open.NAT/issues/12),
+[#13](https://github.com/lontivero/Open.NAT/issues/13) and [#14](https://github.com/lontivero/Open.NAT/issues/12)
 
 ### Version 2.0.0
 * Thus version breaks backward compatibility with v1.
