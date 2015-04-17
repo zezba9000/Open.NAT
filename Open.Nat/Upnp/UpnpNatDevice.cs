@@ -132,7 +132,7 @@ namespace Open.Nat
             {
                 try
                 {
-                    var message = new GetGenericPortMappingEntry(index);
+                    var message = new GetGenericPortMappingEntry(index++);
 
                     var responseData = await _soapClient
                         .InvokeAsync("GetGenericPortMappingEntry", message.ToXml())
@@ -140,18 +140,32 @@ namespace Open.Nat
 
                     var responseMessage = new GetPortMappingEntryResponseMessage(responseData, DeviceInfo.ServiceType, true);
 
+                    IPAddress internalClientIp;
+                    if(!IPAddress.TryParse(responseMessage.InternalClient, out internalClientIp))
+                    {
+                        NatDiscoverer.TraceSource.LogWarn("InternalClient is not an IP address. Mapping ignored!");
+                        continue;
+                    }
+
                     var mapping = new Mapping(responseMessage.Protocol
-                        , IPAddress.Parse(responseMessage.InternalClient)
+                        , internalClientIp
                         , responseMessage.InternalPort
                         , responseMessage.ExternalPort
                         , responseMessage.LeaseDuration
                         , responseMessage.PortMappingDescription);
                     mappings.Add(mapping);
-                    index++;
                 }
                 catch (MappingException e)
                 {
-                    if (e.ErrorCode == UpnpConstants.SpecifiedArrayIndexInvalid) break; // there are no more mappings
+                    if (e.ErrorCode == UpnpConstants.SpecifiedArrayIndexInvalid
+                     || e.ErrorCode == UpnpConstants.NoSuchEntryInArray) break; // there are no more mappings
+
+                    // DD-WRT Linux base router (and others probably) fails with 402-InvalidArgument when index is out of range
+                    if (e.ErrorCode == UpnpConstants.InvalidArguments) 
+                    {
+                        NatDiscoverer.TraceSource.LogWarn("Router failed with 402-InvalidArgument. No more mappings is assumed.");
+                        break; 
+                    }
                     throw;
                 }
             }

@@ -48,8 +48,8 @@ namespace Open.Nat
                 NatDiscoverer.TraceSource.LogInfo("{0}: New control url: {1}", HostEndPoint, serviceControlUrl);
             }
 
-            var builder = new UriBuilder("http", locationUri.Host, locationUri.Port, serviceControlUrl);
-            ServiceControlUri = builder.Uri;
+            var builder = new UriBuilder("http", locationUri.Host, locationUri.Port);
+            ServiceControlUri = new Uri(builder.Uri, serviceControlUrl); ;
         }
 
         public IPEndPoint HostEndPoint { get; private set; }
