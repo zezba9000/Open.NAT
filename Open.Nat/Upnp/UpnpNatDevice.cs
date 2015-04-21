@@ -196,8 +196,16 @@ namespace Open.Nat
             }
             catch (MappingException e)
             {
-                if (e.ErrorCode !=  UpnpConstants.NoSuchEntryInArray) throw;
-                return null;
+                if (e.ErrorCode == UpnpConstants.NoSuchEntryInArray ) return null;
+
+                // DD-WRT Linux base router (and others probably) fails with 402-InvalidArgument 
+                // when no mapping is found in the mappings table
+                if (e.ErrorCode == UpnpConstants.InvalidArguments)
+                {
+                    NatDiscoverer.TraceSource.LogWarn("Router failed with 402-InvalidArgument. Mapping not found is assumed.");
+                    return null;
+                }
+                throw;
             }
         }
 
