@@ -65,7 +65,15 @@ Build Status
 
 [![NuGet version](https://badge.fury.io/nu/open.nat.png)](http://badge.fury.io/nu/open.nat)
 
-https://github.com/lontivero/Open.NAT/issues/20
+### Version 2.0.11
+* Fixes [defect #22](https://github.com/lontivero/Open.NAT/issues/22). 
+Routers failed with 404 when service control url had a question mark (?) - DD-WRT Linux base router (and others probably) fails with
+402-InvalidArgument when index is out of range. - Some routers retuns invalid mapping entries with empty internal client.
+
+* Fixes [defect #24](https://github.com/lontivero/Open.NAT/issues/24).
+GetSpecificMappingEntry fails with
+402-InvalidArgument in DD-WRT Linux base router when mapping is not found.
+
 ### Version 2.0.10
 Fixes [defect #20](https://github.com/lontivero/Open.NAT/issues/20). Absolute service control URL path and query miscalculated.   
 
