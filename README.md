@@ -66,6 +66,7 @@ Build Status
 [![NuGet version](https://badge.fury.io/nu/open.nat.png)](http://badge.fury.io/nu/open.nat)
 
 ### Version 2.0.11
+* Allows the creation of mappings with arbitrary Private IP address.
 * Fixes [defect #22](https://github.com/lontivero/Open.NAT/issues/22). 
 Routers failed with 404 when service control url had a question mark (?) - DD-WRT Linux base router (and others probably) fails with
 402-InvalidArgument when index is out of range. - Some routers retuns invalid mapping entries with empty internal client.
@@ -76,7 +77,6 @@ GetSpecificMappingEntry fails with
 
 ### Version 2.0.10
 Fixes [defect #20](https://github.com/lontivero/Open.NAT/issues/20). Absolute service control URL path and query miscalculated.   
-
 
 ### Version 2.0.9
 * Fixes [defect #16](https://github.com/lontivero/Open.NAT/issues/16)

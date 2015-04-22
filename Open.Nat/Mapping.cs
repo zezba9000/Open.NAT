@@ -145,12 +145,13 @@ namespace Open.Nat
         /// <param name="publicPort">The public port.</param>
         /// <param name="lifetime">The lifetime.</param>
         /// <param name="description">The description.</param>
-        internal Mapping(Protocol protocol, IPAddress privateIP, int privatePort, int publicPort, int lifetime, string description)
+        public Mapping(Protocol protocol, IPAddress privateIP, int privatePort, int publicPort, int lifetime, string description)
         {
             Guard.IsInRange(privatePort, 0, ushort.MaxValue, "privatePort");
             Guard.IsInRange(publicPort, 0, ushort.MaxValue, "publicPort");
             Guard.IsInRange(lifetime, 0, int.MaxValue, "lifetime");
             Guard.IsTrue(protocol == Protocol.Tcp || protocol == Protocol.Udp, "protocol");
+            Guard.IsNotNull(privateIP, "privateIP");
 
             Protocol = protocol;
             PrivateIP = privateIP;
