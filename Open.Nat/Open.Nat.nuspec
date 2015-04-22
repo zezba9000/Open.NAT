@@ -17,6 +17,9 @@
     <copyright>Please see LICENSE for more details.</copyright>
     <tags>NAT TRAVERSAL UPNP PMP PORT FORWARD .NET MONO</tags>
     <releaseNotes>
+      **Version 2.0.11**
+      Allows the creation of mappings with arbitrary Private IP address.
+      
       **Version 2.0.10**
       Fixes defect #20. Absolute service control URL path and query miscalculated.   
       
