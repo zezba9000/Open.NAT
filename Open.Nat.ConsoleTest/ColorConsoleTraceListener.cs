@@ -42,31 +42,31 @@ namespace Open.Nat.ConsoleTest
         {
             lock (_sync)
             {
-            ConsoleColor color;
-            switch (eventType)
-            {
-                case TraceEventType.Error:
-                    color = ConsoleColor.Red;
-                    break;
-                case TraceEventType.Warning:
-                    color = ConsoleColor.Yellow;
-                    break;
-                case TraceEventType.Information:
-                    color = ConsoleColor.Green;
-                    break;
-                case TraceEventType.Verbose:
-                    color = ConsoleColor.DarkCyan;
-                    break;
-                default:
-                    color = ConsoleColor.Gray;
-                    break;
-            }
+                if(Filter != null && !Filter.ShouldTrace(eventCache, source, eventType, id, format, args, null, null)) return;
+                ConsoleColor color;
+                switch (eventType)
+                {
+                    case TraceEventType.Error:
+                        color = ConsoleColor.Red;
+                        break;
+                    case TraceEventType.Warning:
+                        color = ConsoleColor.Yellow;
+                        break;
+                    case TraceEventType.Information:
+                        color = ConsoleColor.Green;
+                        break;
+                    case TraceEventType.Verbose:
+                        color = ConsoleColor.DarkCyan;
+                        break;
+                    default:
+                        color = ConsoleColor.Gray;
+                        break;
+                }
 
-            var eventTypeString = Enum.GetName(typeof (TraceEventType), eventType);
-            var message = source + " - " + eventTypeString + " > " + string.Format(format, args);
+                var eventTypeString = Enum.GetName(typeof (TraceEventType), eventType);
+                    var message = source + " - " + eventTypeString + " > " + (args.Length > 0 ? string.Format(format, args): format);
 
-            WriteColor(message + Environment.NewLine, color);
-
+                WriteColor(message + Environment.NewLine, color);
             }
         }
  

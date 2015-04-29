@@ -38,9 +38,7 @@ namespace Open.Nat.ConsoleTest
 	class NatTest
 	{
         public static void Main(string[] args)
-		{
-            NatDiscoverer.TraceSource.Switch.Level = SourceLevels.Verbose;
-            NatDiscoverer.TraceSource.Listeners.Add(new ColorConsoleTraceListener());
+        {
             Test().Wait();
 
             Console.WriteLine("");
@@ -88,7 +86,6 @@ namespace Open.Nat.ConsoleTest
             sb.AppendFormat("\n[Removing TCP mapping] {0}:1700 -> 127.0.0.1:1600", ip);
             await device.DeletePortMapAsync(new Mapping(Protocol.Tcp, 1600, 1700));
             sb.AppendFormat("\n[Done]");
-
 
             Console.WriteLine(sb.ToString());
 /*

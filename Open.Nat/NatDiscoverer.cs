@@ -67,6 +67,10 @@ namespace Open.Nat
             var device = devices.FirstOrDefault();
             if(device==null)
             {
+                TraceSource.LogInfo("Device not found. Common reasons:");
+                TraceSource.LogInfo("\t* No device is present or,");
+                TraceSource.LogInfo("\t* Upnp is disabled in the router or");
+                TraceSource.LogInfo("\t* Antivirus software is filtering SSDP (discovery protocol).");
                 throw new NatDeviceNotFoundException();
             }
             return device;

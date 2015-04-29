@@ -65,6 +65,10 @@ Build Status
 
 [![NuGet version](https://badge.fury.io/nu/open.nat.png)](http://badge.fury.io/nu/open.nat)
 
+[![Issue Stats](http://www.issuestats.com/github/lontivero/Open.NAT/badge/issue)](http://www.issuestats.com/github/lontivero/Open.NAT)
+
+[![Issue Stats](http://www.issuestats.com/github/lontivero/Open.NAT/badge/pr?style=flat)](http://www.issuestats.com/github/lontivero/Open.NAT)
+
 ### Version 2.0.11
 * Allows the creation of mappings with arbitrary Private IP address.
 * Fixes [defect #22](https://github.com/lontivero/Open.NAT/issues/22). 

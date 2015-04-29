@@ -49,6 +49,7 @@ namespace Open.Nat
 
 		public override async Task<IPAddress> GetExternalIPAsync()
 	    {
+            NatDiscoverer.TraceSource.LogInfo("GetExternalIPAsync - Getting external IP address");
             var message = new GetExternalIPAddressRequestMessage();
             var responseData = await _soapClient
                 .InvokeAsync("GetExternalIPAddress", message.ToXml())
@@ -61,8 +62,9 @@ namespace Open.Nat
         public override async Task CreatePortMapAsync(Mapping mapping)
         {
             Guard.IsNotNull(mapping, "mapping");
+            if(mapping.PrivateIP.Equals(IPAddress.None)) mapping.PrivateIP =  DeviceInfo.LocalAddress;
 
-            mapping.PrivateIP = DeviceInfo.LocalAddress;
+            NatDiscoverer.TraceSource.LogInfo("CreatePortMapAsync - Creating port mapping {0}", mapping);
             try
             {
                 var message = new CreatePortMappingRequestMessage(mapping);
@@ -109,6 +111,10 @@ namespace Open.Nat
 		{
             Guard.IsNotNull(mapping, "mapping");
 
+            if (mapping.PrivateIP.Equals(IPAddress.None)) mapping.PrivateIP = DeviceInfo.LocalAddress;
+            
+            NatDiscoverer.TraceSource.LogInfo("DeletePortMapAsync - Deleteing port mapping {0}", mapping);
+
             try
 		    {
                 var message = new DeletePortMappingRequestMessage(mapping);
@@ -128,6 +134,7 @@ namespace Open.Nat
             var index = 0;
 		    var mappings = new List<Mapping>();
 
+            NatDiscoverer.TraceSource.LogInfo("GetAllMappingsAsync - Getting all mappings");
             while (true)
             {
                 try
@@ -177,6 +184,8 @@ namespace Open.Nat
 		{
             Guard.IsTrue(protocol == Protocol.Tcp || protocol == Protocol.Udp, "protocol");
             Guard.IsInRange(port, 0, ushort.MaxValue, "port");
+
+            NatDiscoverer.TraceSource.LogInfo("GetSpecificMappingAsync - Getting mapping for protocol: {0} port: {1}", Enum.GetName(typeof(Protocol), protocol), port);
 
             try
             {

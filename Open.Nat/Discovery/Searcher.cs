@@ -45,7 +45,7 @@ namespace Open.Nat
 
         public async Task<IEnumerable<NatDevice>> Search(CancellationToken cancelationToken)
         {
-            await Task.Factory.StartNew(async _ =>
+            await Task.Factory.StartNew(_ =>
                 {
                     NatDiscoverer.TraceSource.LogInfo("Searching for: {0}", GetType().Name);
                     while (!cancelationToken.IsCancellationRequested)
