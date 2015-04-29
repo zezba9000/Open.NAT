@@ -123,3 +123,9 @@ Fixes [defect #20](https://github.com/lontivero/Open.NAT/issues/20). Absolute se
 *  Tracing improved
 *  Cleaner code
 
+
+##Help me to maitain Open.NAT
+
+![Bitcoin address](https://github.com/lontivero/Open.Nat/raw/gh-pages/images/bitcoinQR.png)
+
+15fdF4xeZBZMqj8ybrrW7L392gZbx4sCXH
