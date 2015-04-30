@@ -97,7 +97,9 @@
     <Compile Include="Utils\WellKnownConstants.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Open.Nat.nuspec" />
+    <None Include="Open.Nat.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Open.Nat.snk" />
   </ItemGroup>
   <ItemGroup />

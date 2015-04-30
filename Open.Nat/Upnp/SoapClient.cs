@@ -74,7 +74,6 @@ namespace Open.Nat
                                     : reader.ReadToEnd();
 
                 var responseXml = GetXmlDocument(responseBody);
-                NatDiscoverer.TraceSource.TraceEvent(TraceEventType.Verbose, 0, "Response: \n{0}", responseXml.ToPrintableXml());
 
                 response.Close();
                 return responseXml;
@@ -130,7 +129,6 @@ namespace Open.Nat
             sb.Append("</s:Envelope>\r\n\r\n");
             string requestBody = sb.ToString();
 
-            NatDiscoverer.TraceSource.TraceEvent(TraceEventType.Verbose, 0, requestBody);
             byte[] messageBody = Encoding.UTF8.GetBytes(requestBody);
             return messageBody;
         }

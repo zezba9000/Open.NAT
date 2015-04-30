@@ -121,9 +121,12 @@ namespace Open.Nat
                 var message = new DiscoveryResponseMessage(dataString);
                 var serviceType = message["ST"];
 
-                NatDiscoverer.TraceSource.TraceEvent(TraceEventType.Verbose, 0, "UPnP Response: {0}", dataString);
+                if (!IsValidControllerService(serviceType))
+                {
+                    NatDiscoverer.TraceSource.LogWarn("Invalid controller service. Ignoring.");
 
-                if (!IsValidControllerService(serviceType)) return null;
+                    return null;
+                }
                 NatDiscoverer.TraceSource.LogInfo("UPnP Response: Router advertised a '{0}' service!!!", serviceType);
 
                 var location = message["Location"] ?? message["AL"];
