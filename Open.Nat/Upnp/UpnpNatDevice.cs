@@ -157,13 +157,15 @@ namespace Open.Nat
                 }
                 catch (MappingException e)
                 {
+                    // there are no more mappings
                     if (e.ErrorCode == UpnpConstants.SpecifiedArrayIndexInvalid
-                     || e.ErrorCode == UpnpConstants.NoSuchEntryInArray) break; // there are no more mappings
-
-                    // DD-WRT Linux base router (and others probably) fails with 402-InvalidArgument when index is out of range
-                    if (e.ErrorCode == UpnpConstants.InvalidArguments) 
+                     || e.ErrorCode == UpnpConstants.NoSuchEntryInArray
+                     // DD-WRT Linux base router (and others probably) fails with 402-InvalidArgument when index is out of range
+                     || e.ErrorCode == UpnpConstants.InvalidArguments
+                     // LINKSYS WRT1900AC AC1900 it returns errocode 501-PAL_UPNP_SOAP_E_ACTION_FAILED
+                     || e.ErrorCode == UpnpConstants.ActionFailed)
                     {
-                        NatDiscoverer.TraceSource.LogWarn("Router failed with 402-InvalidArgument. No more mappings is assumed.");
+                        NatDiscoverer.TraceSource.LogWarn("Router failed with {0}-{1}. No more mappings is assumed.", e.ErrorCode, e.ErrorText);
                         break; 
                     }
                     throw;
@@ -196,13 +198,15 @@ namespace Open.Nat
             }
             catch (MappingException e)
             {
-                if (e.ErrorCode == UpnpConstants.NoSuchEntryInArray ) return null;
-
-                // DD-WRT Linux base router (and others probably) fails with 402-InvalidArgument 
-                // when no mapping is found in the mappings table
-                if (e.ErrorCode == UpnpConstants.InvalidArguments)
+                // there are no more mappings
+                if (e.ErrorCode == UpnpConstants.SpecifiedArrayIndexInvalid
+                 || e.ErrorCode == UpnpConstants.NoSuchEntryInArray
+                    // DD-WRT Linux base router (and others probably) fails with 402-InvalidArgument when index is out of range
+                 || e.ErrorCode == UpnpConstants.InvalidArguments
+                    // LINKSYS WRT1900AC AC1900 it returns errocode 501-PAL_UPNP_SOAP_E_ACTION_FAILED
+                 || e.ErrorCode == UpnpConstants.ActionFailed)
                 {
-                    NatDiscoverer.TraceSource.LogWarn("Router failed with 402-InvalidArgument. Mapping not found is assumed.");
+                    NatDiscoverer.TraceSource.LogWarn("Router failed with {0}-{1}. No more mappings is assumed.", e.ErrorCode, e.ErrorText);
                     return null;
                 }
                 throw;
