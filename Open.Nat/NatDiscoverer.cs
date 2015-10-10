@@ -28,7 +28,7 @@ namespace Open.Nat
         /// </remarks>
         public readonly static TraceSource TraceSource = new TraceSource("Open.NAT");
 
-        private static readonly Dictionary<string, NatDevice> Devices = new Dictionary<string, NatDevice>();
+		private static readonly Dictionary<string, UpnpNatDevice> Devices = new Dictionary<string, UpnpNatDevice>();
 
         // Finalizer is never used however its destructor, that releases the open ports, is invoked by the
         // process as part of the shuting down step. So, don't remove it!
@@ -41,10 +41,10 @@ namespace Open.Nat
         /// </summary>
         /// <returns>A NAT device</returns>
         /// <exception cref="NatDeviceNotFoundException">when no NAT found before 3 seconds.</exception>
-        public async Task<NatDevice> DiscoverDeviceAsync()
+		public async Task<UpnpNatDevice> DiscoverDeviceAsync()
         {
             var cts = new CancellationTokenSource(3 * 1000);
-            return await DiscoverDeviceAsync(PortMapper.Pmp | PortMapper.Upnp, cts);
+            return await DiscoverDeviceAsync(cts);
         }
 
         /// <summary>
@@ -54,16 +54,14 @@ namespace Open.Nat
         /// <remarks>
         /// It allows to specify the NAT type to discover as well as the cancellation token in order.
         /// </remarks>
-        /// <param name="portMapper">Port mapper protocol; Upnp, Pmp or both</param>
         /// <param name="cancellationTokenSource">Cancellation token source for cancelling the discovery process</param>
         /// <returns>A NAT device</returns>
         /// <exception cref="NatDeviceNotFoundException">when no NAT found before cancellation</exception>
-        public async Task<NatDevice> DiscoverDeviceAsync(PortMapper portMapper, CancellationTokenSource cancellationTokenSource)
+		public async Task<UpnpNatDevice> DiscoverDeviceAsync(CancellationTokenSource cancellationTokenSource)
         {
-            Guard.IsTrue(portMapper.HasFlag(PortMapper.Upnp) || portMapper.HasFlag(PortMapper.Pmp), "portMapper");
             Guard.IsNotNull(cancellationTokenSource, "cancellationTokenSource");
 
-            var devices = await DiscoverAsync(portMapper, true, cancellationTokenSource);
+            var devices = await DiscoverAsync(true, cancellationTokenSource);
             var device = devices.FirstOrDefault();
             if(device==null)
             {
@@ -79,53 +77,35 @@ namespace Open.Nat
         /// <summary>
         /// Discovers and returns all NAT devices for the specified type. If no NAT device is found it returns an empty enumerable
         /// </summary>
-        /// <param name="portMapper">Port mapper protocol; Upnp, Pmp or both</param>
         /// <param name="cancellationTokenSource">Cancellation token source for cancelling the discovery process</param>
         /// <returns>All found NAT devices</returns>
-        public async Task<IEnumerable<NatDevice>> DiscoverDevicesAsync(PortMapper portMapper, CancellationTokenSource cancellationTokenSource)
+		public async Task<IEnumerable<UpnpNatDevice>> DiscoverDevicesAsync(CancellationTokenSource cancellationTokenSource)
         {
-            Guard.IsTrue(portMapper.HasFlag(PortMapper.Upnp) || portMapper.HasFlag(PortMapper.Pmp), "portMapper");
             Guard.IsNotNull(cancellationTokenSource, "cancellationTokenSource");
 
-            var devices = await DiscoverAsync(portMapper, false, cancellationTokenSource);
+            var devices = await DiscoverAsync(false, cancellationTokenSource);
             return devices.ToArray();
         }
 
-        private async Task<IEnumerable<NatDevice>> DiscoverAsync(PortMapper portMapper, bool onlyOne, CancellationTokenSource cts)
+		private async Task<IEnumerable<UpnpNatDevice>> DiscoverAsync(bool onlyOne, CancellationTokenSource cts)
         {
             TraceSource.LogInfo("Start Discovery");
-            var searcherTasks = new List<Task<IEnumerable<NatDevice>>>();
-            if(portMapper.HasFlag(PortMapper.Upnp))
-            {
-                var upnpSearcher = new UpnpSearcher(new IPAddressesProvider());
-                upnpSearcher.DeviceFound += (sender, args) => { if (onlyOne) cts.Cancel(); };
-                searcherTasks.Add(upnpSearcher.Search(cts.Token));
-            }
-            if(portMapper.HasFlag(PortMapper.Pmp))
-            {
-                var pmpSearcher = new PmpSearcher(new IPAddressesProvider());
-                pmpSearcher.DeviceFound += (sender, args) => { if (onlyOne) cts.Cancel(); };
-                searcherTasks.Add(pmpSearcher.Search(cts.Token));
-            }
+            var upnpSearcher = new UpnpSearcher(new IPAddressesProvider());
+            upnpSearcher.DeviceFound += (sender, args) => { if (onlyOne) cts.Cancel(); };
+            var devices = await upnpSearcher.Search(cts.Token);
 
-            await Task.WhenAll(searcherTasks);
             TraceSource.LogInfo("Stop Discovery");
             
-            var devices = searcherTasks.SelectMany(x => x.Result);
             foreach (var device in devices)
             {
                 var key = device.ToString();
-                NatDevice nat;
-                if(Devices.TryGetValue(key, out nat))
+                UpnpNatDevice nat;
+                if(!Devices.TryGetValue(key, out nat))
                 {
-                    nat.Touch();
-                }
-                else
-                {
-                    Devices.Add(key, device);
+                    Devices.Add(key, device.Value);
                 }
             }
-            return devices;
+            return devices.Values;
         }
 
         /// <summary>

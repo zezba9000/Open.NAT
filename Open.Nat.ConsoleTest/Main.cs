@@ -25,8 +25,6 @@
 //
 
 using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -59,8 +57,8 @@ namespace Open.Nat.ConsoleTest
         private async static Task Test()
         {
             var nat = new NatDiscoverer();
-            var cts = new CancellationTokenSource(5000);
-            var device = await nat.DiscoverDeviceAsync(PortMapper.Upnp, cts);
+            var cts = new CancellationTokenSource(500000);
+            var device = await nat.DiscoverDeviceAsync(cts);
 
             var sb = new StringBuilder();
             var ip = await device.GetExternalIPAsync();

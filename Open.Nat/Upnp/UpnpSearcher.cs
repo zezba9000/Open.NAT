@@ -32,18 +32,18 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Net;
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Open.Nat
 {
-    internal class UpnpSearcher : Searcher
+    internal class UpnpSearcher
     {
         private readonly IIPAddressesProvider _ipprovider;
-        private readonly IDictionary<Uri, NatDevice> _devices;
-		private readonly Dictionary<IPAddress, DateTime> _lastFetched;
+        private readonly IDictionary<Uri, UpnpNatDevice> _devices;
+        private readonly Dictionary<IPAddress, DateTime> _lastFetched;
         private static readonly string[] ServiceTypes = new[]{
             "WANIPConnection:2", 
             "WANPPPConnection:2",
@@ -51,11 +51,16 @@ namespace Open.Nat
             "WANPPPConnection:1" 
         };
 
+        //private readonly List<UpnpNatDevice> _devices = new List<UpnpNatDevice>();
+        protected List<UdpClient> Sockets;
+        public EventHandler<DeviceEventArgs> DeviceFound;
+        internal DateTime NextSearch = DateTime.UtcNow;
+
         internal UpnpSearcher(IIPAddressesProvider ipprovider)
         {
             _ipprovider = ipprovider;
             Sockets = CreateSockets();
-            _devices = new Dictionary<Uri, NatDevice>();
+			_devices = new Dictionary<Uri, UpnpNatDevice>();
 			_lastFetched = new Dictionary<IPAddress, DateTime>();
         }
 
@@ -64,7 +69,7 @@ namespace Open.Nat
 			var clients = new List<UdpClient>();
 			try
 			{
-                var ips = _ipprovider.UnicastAddresses();
+			    var ips = _ipprovider.UnicastAddresses();
 
                 foreach (var ipAddress in ips)
 				{
@@ -85,7 +90,7 @@ namespace Open.Nat
 			return clients;
 		}
 
-        protected override void Discover(UdpClient client, CancellationToken cancelationToken)
+        protected void Discover(UdpClient client, CancellationToken cancelationToken)
         {
             NextSearch = DateTime.UtcNow.AddSeconds(1);
             var searchEndpoint = new IPEndPoint(
@@ -108,7 +113,7 @@ namespace Open.Nat
             }
         }
 
-        public override NatDevice AnalyseReceivedResponse(IPAddress localAddress, byte[] response, IPEndPoint endpoint)
+		public UpnpNatDevice AnalyseReceivedResponse(IPAddress localAddress, byte[] response, IPEndPoint endpoint)
         {
             // Convert it to a string for easy parsing
             string dataString = null;
@@ -136,7 +141,6 @@ namespace Open.Nat
                 if (_devices.ContainsKey(locationUri))
                 {
                     NatDiscoverer.TraceSource.LogInfo("Already found - Ignored");
-                    _devices[locationUri].Touch();
                     return null;
                 }
 
@@ -265,6 +269,69 @@ namespace Open.Nat
                 xmldoc.LoadXml(servicesXml);
                 return xmldoc;
             }
+        }
+
+        public async Task<IDictionary<Uri, UpnpNatDevice>> Search(CancellationToken cancelationToken)
+        {
+            await Task.Factory.StartNew(_ => {
+                NatDiscoverer.TraceSource.LogInfo("Searching for: {0}", GetType().Name);
+                while (!cancelationToken.IsCancellationRequested)
+                {
+                    Discover(cancelationToken);
+                    Receive(cancelationToken);
+                }
+                CloseSockets();
+            }, cancelationToken);
+            return _devices;
+        }
+
+        private void Discover(CancellationToken cancelationToken)
+        {
+            if(DateTime.UtcNow < NextSearch) return;
+
+            foreach (var socket in Sockets)
+            {
+                try
+                {
+                    Discover(socket, cancelationToken);
+                }
+                catch (Exception e)
+                {
+                    NatDiscoverer.TraceSource.LogError("Error searching {0} - Details:", GetType().Name);
+                    NatDiscoverer.TraceSource.LogError(e.ToString());
+                }
+            }
+        }
+
+        private void Receive(CancellationToken cancelationToken)
+        {
+            foreach (var client in Sockets.Where(x=>x.Available>0))
+            {
+                if(cancelationToken.IsCancellationRequested) return;
+
+                var localHost = ((IPEndPoint)client.Client.LocalEndPoint).Address;
+                var receivedFrom = new IPEndPoint(IPAddress.None, 0);
+                var buffer = client.Receive(ref receivedFrom);
+                var device = AnalyseReceivedResponse(localHost, buffer, receivedFrom);
+
+                if (device != null) RaiseDeviceFound(device);
+            }
+        }
+
+        public void CloseSockets()
+        {
+            foreach (var udpClient in Sockets)
+            {
+                udpClient.Close();
+            }
+        }
+
+        private void RaiseDeviceFound(UpnpNatDevice device)
+        {
+            _devices.Add(device.DeviceInfo.ServiceControlUri, device);
+            var handler = DeviceFound;
+            if(handler!=null)
+                handler(this, new DeviceEventArgs(device));
         }
     }
 }
