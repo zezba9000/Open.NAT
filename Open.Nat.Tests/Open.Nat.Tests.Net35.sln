@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.Nat.Tests", "Open.Nat.Tests.csproj", "{8A04E1C3-E262-4709-A5AB-6A1A95473C08}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.Nat.Tests", "Open.Nat.Tests.Net35.csproj", "{8A04E1C3-E262-4709-A5AB-6A1A95473C08}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
