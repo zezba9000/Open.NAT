@@ -51,7 +51,7 @@
     <Compile Include="Main.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Open.Nat\Open.Nat.csproj">
+    <ProjectReference Include="..\Open.Nat\Open.Nat.Net35.csproj">
       <Project>{F5D74163-145F-47BF-83DC-D0E07249C6CA}</Project>
       <Name>Open.Nat</Name>
     </ProjectReference>
