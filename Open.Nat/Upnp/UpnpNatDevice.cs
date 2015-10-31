@@ -37,16 +37,16 @@ using System.Threading.Tasks;
 namespace Open.Nat
 {
     internal sealed class UpnpNatDevice : NatDevice
-	{
-	    internal readonly UpnpNatDeviceInfo DeviceInfo;
+    {
+        internal readonly UpnpNatDeviceInfo DeviceInfo;
         private readonly SoapClient _soapClient;
 
-        internal UpnpNatDevice (UpnpNatDeviceInfo deviceInfo)
-		{
+        internal UpnpNatDevice(UpnpNatDeviceInfo deviceInfo)
+        {
             Touch();
             DeviceInfo = deviceInfo;
             _soapClient = new SoapClient(DeviceInfo.ServiceControlUri, DeviceInfo.ServiceType);
-		}
+        }
 
 #if NET35
         public override Task<IPAddress> GetExternalIPAsync()
@@ -65,7 +65,7 @@ namespace Open.Nat
         }
 #else
         public override async Task<IPAddress> GetExternalIPAsync()
-	    {
+        {
             NatDiscoverer.TraceSource.LogInfo("GetExternalIPAsync - Getting external IP address");
             var message = new GetExternalIPAddressRequestMessage();
             var responseData = await _soapClient
@@ -216,7 +216,7 @@ namespace Open.Nat
         }
 #else
         public override async Task DeletePortMapAsync(Mapping mapping)
-		{
+        {
             Guard.IsNotNull(mapping, "mapping");
 
             if (mapping.PrivateIP.Equals(IPAddress.None)) mapping.PrivateIP = DeviceInfo.LocalAddress;
@@ -224,22 +224,22 @@ namespace Open.Nat
             NatDiscoverer.TraceSource.LogInfo("DeletePortMapAsync - Deleteing port mapping {0}", mapping);
 
             try
-		    {
+            {
                 var message = new DeletePortMappingRequestMessage(mapping);
                 await _soapClient
                     .InvokeAsync("DeletePortMapping", message.ToXml())
                     .TimeoutAfter(TimeSpan.FromSeconds(4));
                 UnregisterMapping(mapping);
             }
-		    catch (MappingException e)
-		    {
+            catch (MappingException e)
+            {
                 if(e.ErrorCode != UpnpConstants.NoSuchEntryInArray) throw; 
-		    }
+            }
         }
 #endif
 
 #if NET35
-        public void GetGenericMappingAsync(int index, List<Mapping> mappings, 
+        public void GetGenericMappingAsync(int index, List<Mapping> mappings,
             TaskCompletionSource<IEnumerable<Mapping>> taskCompletionSource)
         {
             var message = new GetGenericPortMappingEntry(index);
@@ -314,9 +314,9 @@ namespace Open.Nat
         }
 #else
         public override async Task<IEnumerable<Mapping>> GetAllMappingsAsync()
-		{
+        {
             var index = 0;
-		    var mappings = new List<Mapping>();
+            var mappings = new List<Mapping>();
 
             NatDiscoverer.TraceSource.LogInfo("GetAllMappingsAsync - Getting all mappings");
             while (true)
@@ -410,7 +410,7 @@ namespace Open.Nat
         }
 #else
         public override async Task<Mapping> GetSpecificMappingAsync (Protocol protocol, int port)
-		{
+        {
             Guard.IsTrue(protocol == Protocol.Tcp || protocol == Protocol.Udp, "protocol");
             Guard.IsInRange(port, 0, ushort.MaxValue, "port");
 
@@ -448,12 +448,12 @@ namespace Open.Nat
         }
 #endif
 
-        public override string ToString( )
+        public override string ToString()
         {
             //GetExternalIP is blocking and can throw exceptions, can't use it here.
-            return String.Format( 
+            return String.Format(
                 "EndPoint: {0}\nControl Url: {1}\nService Type: {2}\nLast Seen: {3}",
-                DeviceInfo.HostEndPoint, DeviceInfo.ServiceControlUri,  DeviceInfo.ServiceType, LastSeen);
+                DeviceInfo.HostEndPoint, DeviceInfo.ServiceControlUri, DeviceInfo.ServiceType, LastSeen);
         }
-	}
+    }
 }

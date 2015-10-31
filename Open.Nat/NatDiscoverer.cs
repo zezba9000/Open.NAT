@@ -108,6 +108,7 @@ namespace Open.Nat
             return device;
         }
 #endif
+
         /// <summary>
         /// Discovers and returns all NAT devices for the specified type. If no NAT device is found it returns an empty enumerable
         /// </summary>
@@ -237,6 +238,7 @@ namespace Open.Nat
 
         private static void RenewMappings(object state)
         {
+#if NET35
             Task.Factory.StartNew(()=>
             {
                 Task task = null;
@@ -246,6 +248,15 @@ namespace Open.Nat
                     task = (task == null) ? device.RenewMappings() : task.ContinueWith(t => d.RenewMappings());
                 }
             });
+#else
+            Task.Factory.StartNew(async () =>
+            {
+                foreach (var device in Devices.Values)
+                {
+                    await device.RenewMappings();
+                }
+            });
+#endif
         }
     }
 }

@@ -119,7 +119,7 @@ namespace Open.Nat
                 "The operation has timed out. The network is broken, router has gone or is too busy.");
         }
 #else
-    public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
+        public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
         {
 #if DEBUG
             return await task;

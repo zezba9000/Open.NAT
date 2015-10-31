@@ -24,7 +24,6 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -33,11 +32,7 @@ namespace Open.Nat
 {
     internal interface ISearcher
     {
-#if NET45
         void Search(CancellationToken cancellationToken);
-#elif NET35
-        void Search();
-#endif
         IEnumerable<NatDevice> Receive();
         NatDevice AnalyseReceivedResponse(IPAddress localAddress, byte[] response, IPEndPoint endpoint);
     }

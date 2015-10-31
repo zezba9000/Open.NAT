@@ -74,6 +74,7 @@ namespace Open.Nat
             return _devices;
         }
 #endif
+
         private void Discover(CancellationToken cancelationToken)
         {
             if(DateTime.UtcNow < NextSearch) return;

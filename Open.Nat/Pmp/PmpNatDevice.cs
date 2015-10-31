@@ -86,7 +86,11 @@ namespace Open.Nat
 
         public override Task<IPAddress> GetExternalIPAsync()
         {
+#if NET35
             return Task.Factory.StartNew(() => _publicAddress)
+#else
+            return Task.Run(() => _publicAddress)
+#endif
                 .TimeoutAfter(TimeSpan.FromSeconds(4));
         }
 
