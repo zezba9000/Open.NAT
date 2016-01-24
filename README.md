@@ -124,7 +124,7 @@ Fixes [defect #20](https://github.com/lontivero/Open.NAT/issues/20). Absolute se
 *  Cleaner code
 
 
-##Help me to maitain Open.NAT
+##Help me to maintain Open.NAT
 
 ![Bitcoin address](https://github.com/lontivero/Open.Nat/raw/gh-pages/images/bitcoinQR.png)
 
