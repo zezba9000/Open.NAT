@@ -109,14 +109,19 @@ namespace Open.Nat
 #endif
             var timeoutCancellationTokenSource = new CancellationTokenSource();
 
-            Task completedTask = TaskExtension.WhenAny(task, TaskExtension.Delay(timeout, timeoutCancellationTokenSource.Token));
-            if (completedTask == task)
-            {
-                timeoutCancellationTokenSource.Cancel();
-                return task;
-            }
-            throw new TimeoutException(
-                "The operation has timed out. The network is broken, router has gone or is too busy.");
+            return TaskExtension.WhenAny(task, TaskExtension.Delay(timeout, timeoutCancellationTokenSource.Token))
+                .ContinueWith(t =>
+                {
+                    Task completedTask = t.Result;
+
+                    if (completedTask == task)
+                    {
+                        timeoutCancellationTokenSource.Cancel();
+                        return task;
+                    }
+                    throw new TimeoutException(
+                        "The operation has timed out. The network is broken, router has gone or is too busy.");
+                }).Unwrap();
         }
 #else
         public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
@@ -170,7 +175,7 @@ namespace Open.Nat
         }
     }
 
-    public class TaskExtension
+    public static class TaskExtension
     {
         public static Task Delay(TimeSpan delay, CancellationToken token)
         {
@@ -183,7 +188,6 @@ namespace Open.Nat
 
             Timer timer = new Timer(self =>
             {
-                ((Timer)self).Dispose(); //stop the time
                 tcs.TrySetResult(null); //timer expired, attempt to move task to the completed state.
             }, null, delayMs, -1);
 
