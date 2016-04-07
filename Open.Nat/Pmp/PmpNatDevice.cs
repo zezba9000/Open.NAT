@@ -47,19 +47,37 @@ namespace Open.Nat
 
         internal IPAddress LocalAddress { get; private set; }
 
+#if NET35
+        public override Task CreatePortMapAsync(Mapping mapping)
+        {
+            return InternalCreatePortMapAsync(mapping, true)
+                .TimeoutAfter(TimeSpan.FromSeconds(4))
+                .ContinueWith(t => RegisterMapping(mapping));
+        }
+#else
         public override async Task CreatePortMapAsync(Mapping mapping)
         {
             await InternalCreatePortMapAsync(mapping, true)
                 .TimeoutAfter(TimeSpan.FromSeconds(4));
             RegisterMapping(mapping);
         }
+#endif
 
+#if NET35
+        public override Task DeletePortMapAsync(Mapping mapping)
+        {
+            return InternalCreatePortMapAsync(mapping, false)
+                .TimeoutAfter(TimeSpan.FromSeconds(4))
+                .ContinueWith(t => UnregisterMapping(mapping));
+        }
+#else
         public override async Task DeletePortMapAsync(Mapping mapping)
         {
             await InternalCreatePortMapAsync(mapping, false)
                 .TimeoutAfter(TimeSpan.FromSeconds(4));
             UnregisterMapping(mapping);
         }
+#endif
 
         public override Task<IEnumerable<Mapping>> GetAllMappingsAsync()
         {
@@ -68,7 +86,11 @@ namespace Open.Nat
 
         public override Task<IPAddress> GetExternalIPAsync()
         {
+#if NET35
+            return Task.Factory.StartNew(() => _publicAddress)
+#else
             return Task.Run(() => _publicAddress)
+#endif
                 .TimeoutAfter(TimeSpan.FromSeconds(4));
         }
 
@@ -77,7 +99,67 @@ namespace Open.Nat
             throw new NotSupportedException("NAT-PMP does not specify a way to get a specific port map");
         }
 
+#if NET35
+        private Task<Mapping> InternalCreatePortMapAsync(Mapping mapping, bool create)
+        {
+            var package = new List<byte>();
 
+            package.Add(PmpConstants.Version);
+            package.Add(mapping.Protocol == Protocol.Tcp ? PmpConstants.OperationCodeTcp : PmpConstants.OperationCodeUdp);
+            package.Add(0); //reserved
+            package.Add(0); //reserved
+            package.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short) mapping.PrivatePort)));
+            package.AddRange(
+                BitConverter.GetBytes(create ? IPAddress.HostToNetworkOrder((short) mapping.PublicPort) : (short) 0));
+            package.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(mapping.Lifetime)));
+
+            byte[] buffer = package.ToArray();
+            int attempt = 0;
+            int delay = PmpConstants.RetryDelay;
+
+            var udpClient = new UdpClient();
+            CreatePortMapListen(udpClient, mapping);
+
+            Task task = Task.Factory.FromAsync<byte[], int, IPEndPoint, int>(
+                        udpClient.BeginSend, udpClient.EndSend,
+                        buffer, buffer.Length,
+                        new IPEndPoint(LocalAddress, PmpConstants.ServerPort),
+                        null);
+
+            while (attempt < PmpConstants.RetryAttempts - 1)
+            {
+                task = task.ContinueWith(t =>
+                {
+                    if (t.IsFaulted)
+                    {
+                        string type = create ? "create" : "delete";
+                        string message = String.Format("Failed to {0} portmap (protocol={1}, private port={2})",
+                            type,
+                            mapping.Protocol,
+                            mapping.PrivatePort);
+                        NatDiscoverer.TraceSource.LogError(message);
+                        throw new MappingException(message, t.Exception);
+                    }
+
+                    return Task.Factory.FromAsync<byte[], int, IPEndPoint, int>(
+                        udpClient.BeginSend, udpClient.EndSend,
+                        buffer, buffer.Length,
+                        new IPEndPoint(LocalAddress, PmpConstants.ServerPort),
+                        null);
+                }).Unwrap();
+
+                attempt++;
+                delay *= 2;
+                Thread.Sleep(delay);
+            }
+
+            return task.ContinueWith(t =>
+            {
+                udpClient.Close();
+                return mapping;
+            });
+        }
+#else
         private async Task<Mapping> InternalCreatePortMapAsync(Mapping mapping, bool create)
         {
             var package = new List<byte>();
@@ -127,6 +209,7 @@ namespace Open.Nat
 
             return mapping;
         }
+#endif
 
         private void CreatePortMapListen(UdpClient udpClient, Mapping mapping)
         {

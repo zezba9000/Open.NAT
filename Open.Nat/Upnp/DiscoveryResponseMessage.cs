@@ -41,7 +41,7 @@ namespace Open.Nat
                     let c = h.Split(':')
                     let key = c[0]
                     let value = c.Length > 1 
-                        ? string.Join(":", c.Skip(1)) 
+                        ? string.Join(":", c.Skip(1).ToArray()) 
                         : string.Empty 
                     select new {Key = key, Value = value.Trim()};
             _headers = headers.ToDictionary(x => x.Key.ToUpperInvariant(), x => x.Value);
