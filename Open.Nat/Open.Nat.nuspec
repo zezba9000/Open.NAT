@@ -1,67 +1,76 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
-  <metadata>
-    <id>Open.NAT</id>
-    <version>$version$</version>
-    <title>Open.NAT</title>
-    <authors>Alan McGovern, Ben Motmans, Lucas Ontivero</authors>
-    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
-    <projectUrl>https://github.com/lontivero/Open.NAT</projectUrl>
-    <iconUrl>http://github.com/lontivero/Open.Nat/raw/gh-pages/images/logos/64.jpg</iconUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>
-      Open.NAT is a lightweight and easy-to-use class library to allow port forwarding in NAT devices (Network Address Translator) that support Universal Plug and Play (UPNP) and/or Port Mapping Protocol (PMP).
-    </description>
-    <summary>Library to allow port forwarding in NAT devices that support UPNP and/or PMP.</summary>
-    <language>en-US</language>
-    <copyright>Please see LICENSE for more details.</copyright>
-    <tags>NAT TRAVERSAL UPNP PMP PORT FORWARD .NET MONO</tags>
-    <releaseNotes>
-      **Version 2.0.11**
-      Allows the creation of mappings with arbitrary Private IP address.
-      Fixes defect #22. 
-        - Routers failed with 404 when service control url had a question mark (?) 
-        - DD-WRT Linux base router (and others probably) fails with 402-InvalidArgument when index is out of range. 
-        - Some routers retuns invalid mapping entries with empty internal client.
+		<metadata>
+			<id>Open.NAT</id>
+			<version>$version$</version>
+			<title>Open.NAT</title>
+			<authors>Alan McGovern, Ben Motmans, Lucas Ontivero</authors>
+			<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+			<projectUrl>https://github.com/lontivero/Open.NAT</projectUrl>
+			<iconUrl>http://github.com/lontivero/Open.Nat/raw/gh-pages/images/logos/64.jpg</iconUrl>
+			<requireLicenseAcceptance>false</requireLicenseAcceptance>
+			<description>
+				Open.NAT is a lightweight and easy-to-use class library to allow port forwarding in NAT devices (Network Address Translator) that support Universal Plug and Play (UPNP) and/or Port Mapping Protocol (PMP).
+			</description>
+			<summary>Library to allow port forwarding in NAT devices that support UPNP and/or PMP.</summary>
+			<language>en-US</language>
+			<copyright>Please see LICENSE for more details.</copyright>
+			<tags>NAT TRAVERSAL UPNP PMP PORT FORWARD .NET MONO</tags>
+			<releaseNotes>
+				**Version 2.0.16**
+				Supports .NET 3.5
+				Fixes defect #28.
+				- GetSpecificMappingAsync under LINKSYS WRT1900AC AC1900 fails with 501
+			
+				**Version 2.0.11**
+				Allows the creation of mappings with arbitrary Private IP address.
+				Fixes defect #22.
+				- Routers failed with 404 when service control url had a question mark (?)
+				- DD-WRT Linux base router (and others probably) fails with 402-InvalidArgument when index is out of range.
+				- Some routers retuns invalid mapping entries with empty internal client.
 
-      Fixes defect #24.
-      GetSpecificMappingEntry fails with 402-InvalidArgument in DD-WRT Linux base router when mapping is not found.
+				Fixes defect #24.
+				GetSpecificMappingEntry fails with 402-InvalidArgument in DD-WRT Linux base router when mapping is not found.
 
-      **Version 2.0.10**
-      Fixes defect #20. Absolute service control URL path and query miscalculated.   
-      
-      **Version 2.0.9**
-      Fixes defects #16. Parameterless DiscoverDeviceAsync method throws exception
+				**Version 2.0.10**
+				Fixes defect #20. Absolute service control URL path and query miscalculated.
 
-      **Version 2.0.8**
-      Fixes several defects. #10, #11, #12, #13 and #14
+				**Version 2.0.9**
+				Fixes defects #16. Parameterless DiscoverDeviceAsync method throws exception
 
-      **2.0.0**
-      Thus version breaks backward compatibility with v1.
-      Changes the event-based discovery process' nature to an asynchronous one.
+				**Version 2.0.8**
+				Fixes several defects. #10, #11, #12, #13 and #14
 
-      **1.1.0**
-      Fix for SSDP Location header.
-      After this version Open.NAT breaks backward compatibility.
+				**2.0.0**
+				Thus version breaks backward compatibility with v1.
+				Changes the event-based discovery process' nature to an asynchronous one.
 
-      **1.0.19**
-      Minor changes previous to v2.
+				**1.1.0**
+				Fix for SSDP Location header.
+				After this version Open.NAT breaks backward compatibility.
 
-      **1.0.18**
-      Discovery timeout raises an event.
-      Permanent mappings are created when NAT only supports that kind of mappings.
-      Protocol to use in discovery process can be specified.
-      Automatic renew port mappings before expiration.
-      Add operations timeout after 4 seconds.
-      Add parameters validation in Mapping class.
-      Fix UnhandledException event was never raised.
+				**1.0.19**
+				Minor changes previous to v2.
 
-      **1.0.17**
-      Discovery timeout added.
-      Auto release ports opened in the session.
-      Fix NextSearch to use UtcNow (also performance)
-      Fix LocalIP property after add a port.
-      Tracing improvements
-    </releaseNotes>
-  </metadata>
+				**1.0.18**
+				Discovery timeout raises an event.
+				Permanent mappings are created when NAT only supports that kind of mappings.
+				Protocol to use in discovery process can be specified.
+				Automatic renew port mappings before expiration.
+				Add operations timeout after 4 seconds.
+				Add parameters validation in Mapping class.
+				Fix UnhandledException event was never raised.
+
+				**1.0.17**
+				Discovery timeout added.
+				Auto release ports opened in the session.
+				Fix NextSearch to use UtcNow (also performance)
+				Fix LocalIP property after add a port.
+				Tracing improvements
+			</releaseNotes>
+		</metadata>
+		<files>
+			<file src="bin\Release\net35\*.*" target="lib\net35" />
+			<file src="bin\Release\net45\*.*" target="lib\net45" />
+		</files>
 </package>

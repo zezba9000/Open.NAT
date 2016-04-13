@@ -69,6 +69,11 @@ Build Status
 
 [![Issue Stats](http://www.issuestats.com/github/lontivero/Open.NAT/badge/pr?style=flat)](http://www.issuestats.com/github/lontivero/Open.NAT)
 
+### Version 2.0.16
+* Supports .NET 3.5
+* Fixes [defect #28](https://github.com/lontivero/Open.NAT/issues/28).
+GetSpecificMappingAsync under LINKSYS WRT1900AC AC1900 fails with 501
+
 ### Version 2.0.11
 * Allows the creation of mappings with arbitrary Private IP address.
 * Fixes [defect #22](https://github.com/lontivero/Open.NAT/issues/22). 
