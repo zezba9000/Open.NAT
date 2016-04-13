@@ -47,6 +47,12 @@ await device.CreatePortMapAsync(new Mapping(Protocol.Tcp, 1600, 1700, "The mappi
 
 For more info please check the [Wiki](https://github.com/lontivero/Open.Nat/wiki)
 
+Awesome software using Open.NAT
+-------------
++ [War For The Overworld](https://wftogame.com/)  
++ [Interstellar RIFT](http://www.interstellarrift.com/)
++ [The Kindred](http://thekindred.net/)
+
 Documentation
 -------------
 + Why Open.NAT? Here you have [ten reasons](https://github.com/lontivero/Open.NAT/wiki/Why-Open.NAT) that make Open.NAT a good candidate for you projects
@@ -64,10 +70,6 @@ Build Status
 [![Build status](https://ci.appveyor.com/api/projects/status/dadcbt26mrlri8cg)](https://ci.appveyor.com/project/lontivero/open-nat)
 
 [![NuGet version](https://badge.fury.io/nu/open.nat.png)](http://badge.fury.io/nu/open.nat)
-
-[![Issue Stats](http://www.issuestats.com/github/lontivero/Open.NAT/badge/issue)](http://www.issuestats.com/github/lontivero/Open.NAT)
-
-[![Issue Stats](http://www.issuestats.com/github/lontivero/Open.NAT/badge/pr?style=flat)](http://www.issuestats.com/github/lontivero/Open.NAT)
 
 ### Version 2.0.16
 * Supports .NET 3.5
