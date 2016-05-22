@@ -368,14 +368,14 @@ namespace Open.Nat
 #endif
 
 #if NET35
-        public override Task<Mapping> GetSpecificMappingAsync(Protocol protocol, int port)
+        public override Task<Mapping> GetSpecificMappingAsync(Protocol protocol, int publicPort)
         {
             Guard.IsTrue(protocol == Protocol.Tcp || protocol == Protocol.Udp, "protocol");
-            Guard.IsInRange(port, 0, ushort.MaxValue, "port");
+            Guard.IsInRange(publicPort, 0, ushort.MaxValue, "port");
 
-            NatDiscoverer.TraceSource.LogInfo("GetSpecificMappingAsync - Getting mapping for protocol: {0} port: {1}", Enum.GetName(typeof(Protocol), protocol), port);
+            NatDiscoverer.TraceSource.LogInfo("GetSpecificMappingAsync - Getting mapping for protocol: {0} port: {1}", Enum.GetName(typeof(Protocol), protocol), publicPort);
 
-            var message = new GetSpecificPortMappingEntryRequestMessage(protocol, port);
+            var message = new GetSpecificPortMappingEntryRequestMessage(protocol, publicPort);
             return _soapClient
                 .InvokeAsync("GetSpecificPortMappingEntry", message.ToXml())
                 .TimeoutAfter(TimeSpan.FromSeconds(4))
@@ -390,7 +390,7 @@ namespace Open.Nat
                         return new Mapping(messageResponse.Protocol
                             , IPAddress.Parse(messageResponse.InternalClient)
                             , messageResponse.InternalPort
-                            , messageResponse.ExternalPort
+                            , publicPort // messageResponse.ExternalPort is short.MaxValue
                             , messageResponse.LeaseDuration
                             , messageResponse.PortMappingDescription);
                     }
@@ -411,16 +411,16 @@ namespace Open.Nat
                 });
         }
 #else
-        public override async Task<Mapping> GetSpecificMappingAsync (Protocol protocol, int port)
+        public override async Task<Mapping> GetSpecificMappingAsync (Protocol protocol, int publicPort)
         {
             Guard.IsTrue(protocol == Protocol.Tcp || protocol == Protocol.Udp, "protocol");
-            Guard.IsInRange(port, 0, ushort.MaxValue, "port");
+            Guard.IsInRange(publicPort, 0, ushort.MaxValue, "port");
 
-            NatDiscoverer.TraceSource.LogInfo("GetSpecificMappingAsync - Getting mapping for protocol: {0} port: {1}", Enum.GetName(typeof(Protocol), protocol), port);
+            NatDiscoverer.TraceSource.LogInfo("GetSpecificMappingAsync - Getting mapping for protocol: {0} port: {1}", Enum.GetName(typeof(Protocol), protocol), publicPort);
 
             try
             {
-                var message = new GetSpecificPortMappingEntryRequestMessage(protocol, port);
+                var message = new GetSpecificPortMappingEntryRequestMessage(protocol, publicPort);
                 var responseData = await _soapClient
                     .InvokeAsync("GetSpecificPortMappingEntry", message.ToXml())
                     .TimeoutAfter(TimeSpan.FromSeconds(4));
@@ -430,7 +430,7 @@ namespace Open.Nat
                 return new Mapping(messageResponse.Protocol
                     , IPAddress.Parse(messageResponse.InternalClient)
                     , messageResponse.InternalPort
-                    , messageResponse.ExternalPort
+                    , publicPort // messageResponse.ExternalPort is short.MaxValue
                     , messageResponse.LeaseDuration
                     , messageResponse.PortMappingDescription);
             }
