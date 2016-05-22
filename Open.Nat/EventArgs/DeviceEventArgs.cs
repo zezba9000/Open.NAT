@@ -28,13 +28,13 @@
 
 namespace Open.Nat
 {
-    internal class DeviceEventArgs : System.EventArgs
+	internal class DeviceEventArgs : System.EventArgs
 	{
-	    public DeviceEventArgs(NatDevice device)
+		public DeviceEventArgs(NatDevice device)
 		{
 			Device = device;
 		}
 
-	    public NatDevice Device { get; private set; }
+		public NatDevice Device { get; private set; }
 	}
 }

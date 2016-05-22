@@ -32,60 +32,60 @@ using System.Security.Permissions;
 
 namespace Open.Nat
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    [Serializable]
-    public class MappingException : Exception
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public int ErrorCode { get; private set; }
+	/// <summary>
+	/// 
+	/// </summary>
+	[Serializable]
+	public class MappingException : Exception
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public int ErrorCode { get; private set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string ErrorText { get; private set; }
+		/// <summary>
+		/// 
+		/// </summary>
+		public string ErrorText { get; private set; }
 
-        #region Constructors
+		#region Constructors
 
-        internal MappingException()
-        {
-        }
+		internal MappingException()
+		{
+		}
 
-        internal MappingException(string message)
-            : base(message)
-        {
-        }
+		internal MappingException(string message)
+			: base(message)
+		{
+		}
 
-        internal MappingException(int errorCode, string errorText)
-            : base(string.Format("Error {0}: {1}", errorCode, errorText))
-        {
-            ErrorCode = errorCode;
-            ErrorText = errorText;
-        }
+		internal MappingException(int errorCode, string errorText)
+			: base(string.Format("Error {0}: {1}", errorCode, errorText))
+		{
+			ErrorCode = errorCode;
+			ErrorText = errorText;
+		}
 
-        internal MappingException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
+		internal MappingException(string message, Exception innerException)
+			: base(message, innerException)
+		{
+		}
 
-        protected MappingException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
+		protected MappingException(SerializationInfo info, StreamingContext context)
+			: base(info, context)
+		{
+		}
 
-        #endregion
+		#endregion
 
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info == null) throw new ArgumentNullException("info");
+		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+		public override void GetObjectData(SerializationInfo info, StreamingContext context)
+		{
+			if (info == null) throw new ArgumentNullException("info");
 
-            ErrorCode = info.GetInt32("errorCode");
-            ErrorText = info.GetString("errorText");
-            base.GetObjectData(info, context);
-        }
-    }
+			ErrorCode = info.GetInt32("errorCode");
+			ErrorText = info.GetString("errorText");
+			base.GetObjectData(info, context);
+		}
+	}
 }

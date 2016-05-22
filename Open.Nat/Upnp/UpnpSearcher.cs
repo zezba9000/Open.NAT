@@ -39,42 +39,42 @@ using System.Xml;
 
 namespace Open.Nat
 {
-    internal class UpnpSearcher : Searcher
-    {
-        private readonly IIPAddressesProvider _ipprovider;
-        private readonly IDictionary<Uri, NatDevice> _devices;
+	internal class UpnpSearcher : Searcher
+	{
+		private readonly IIPAddressesProvider _ipprovider;
+		private readonly IDictionary<Uri, NatDevice> _devices;
 		private readonly Dictionary<IPAddress, DateTime> _lastFetched;
-        private static readonly string[] ServiceTypes = new[]{
-            "WANIPConnection:2", 
-            "WANPPPConnection:2",
-            "WANIPConnection:1", 
-            "WANPPPConnection:1" 
-        };
+		private static readonly string[] ServiceTypes = new[]{
+			"WANIPConnection:2", 
+			"WANPPPConnection:2",
+			"WANIPConnection:1", 
+			"WANPPPConnection:1" 
+		};
 
-        internal UpnpSearcher(IIPAddressesProvider ipprovider)
-        {
-            _ipprovider = ipprovider;
-            Sockets = CreateSockets();
-            _devices = new Dictionary<Uri, NatDevice>();
+		internal UpnpSearcher(IIPAddressesProvider ipprovider)
+		{
+			_ipprovider = ipprovider;
+			Sockets = CreateSockets();
+			_devices = new Dictionary<Uri, NatDevice>();
 			_lastFetched = new Dictionary<IPAddress, DateTime>();
-        }
+		}
 
 		private List<UdpClient> CreateSockets()
 		{
 			var clients = new List<UdpClient>();
 			try
 			{
-                var ips = _ipprovider.UnicastAddresses();
+				var ips = _ipprovider.UnicastAddresses();
 
-                foreach (var ipAddress in ips)
+				foreach (var ipAddress in ips)
 				{
 					try
 					{
-                        clients.Add(new UdpClient(new IPEndPoint(ipAddress, 0)));
+						clients.Add(new UdpClient(new IPEndPoint(ipAddress, 0)));
 					}
 					catch (Exception)
 					{
-					    continue; // Move on to the next address.
+						continue; // Move on to the next address.
 					}
 				}
 			}
@@ -85,62 +85,62 @@ namespace Open.Nat
 			return clients;
 		}
 
-        protected override void Discover(UdpClient client, CancellationToken cancelationToken)
-        {
-            NextSearch = DateTime.UtcNow.AddSeconds(1);
-            var searchEndpoint = new IPEndPoint(
-                WellKnownConstants.IPv4MulticastAddress
-                /*IPAddress.Broadcast*/
-                , 1900);
+		protected override void Discover(UdpClient client, CancellationToken cancelationToken)
+		{
+			NextSearch = DateTime.UtcNow.AddSeconds(1);
+			var searchEndpoint = new IPEndPoint(
+				WellKnownConstants.IPv4MulticastAddress
+				/*IPAddress.Broadcast*/
+				, 1900);
 
-            foreach (var serviceType in ServiceTypes)
-            {
-                var datax = DiscoverDeviceMessage.Encode(serviceType);
-                var data = Encoding.ASCII.GetBytes(datax);
+			foreach (var serviceType in ServiceTypes)
+			{
+				var datax = DiscoverDeviceMessage.Encode(serviceType);
+				var data = Encoding.ASCII.GetBytes(datax);
 
-                // UDP is unreliable, so send 3 requests at a time (per Upnp spec, sec 1.1.2)
-                // Yes, however it works perfectly well with just 1 request.
-                for (var i = 0; i < 2; i++)
-                {
-                    if (cancelationToken.IsCancellationRequested) return;
-                    client.Send(data, data.Length, searchEndpoint);
-                }
-            }
-        }
+				// UDP is unreliable, so send 3 requests at a time (per Upnp spec, sec 1.1.2)
+				// Yes, however it works perfectly well with just 1 request.
+				for (var i = 0; i < 2; i++)
+				{
+					if (cancelationToken.IsCancellationRequested) return;
+					client.Send(data, data.Length, searchEndpoint);
+				}
+			}
+		}
 
-        public override NatDevice AnalyseReceivedResponse(IPAddress localAddress, byte[] response, IPEndPoint endpoint)
-        {
-            // Convert it to a string for easy parsing
-            string dataString = null;
+		public override NatDevice AnalyseReceivedResponse(IPAddress localAddress, byte[] response, IPEndPoint endpoint)
+		{
+			// Convert it to a string for easy parsing
+			string dataString = null;
 
-            // No matter what, this method should never throw an exception. If something goes wrong
-            // we should still be in a position to handle the next reply correctly.
-            try
-            {
-                dataString = Encoding.UTF8.GetString(response);
-                var message = new DiscoveryResponseMessage(dataString);
-                var serviceType = message["ST"];
+			// No matter what, this method should never throw an exception. If something goes wrong
+			// we should still be in a position to handle the next reply correctly.
+			try
+			{
+				dataString = Encoding.UTF8.GetString(response);
+				var message = new DiscoveryResponseMessage(dataString);
+				var serviceType = message["ST"];
 
-                if (!IsValidControllerService(serviceType))
-                {
-                    NatDiscoverer.TraceSource.LogWarn("Invalid controller service. Ignoring.");
+				if (!IsValidControllerService(serviceType))
+				{
+					NatDiscoverer.TraceSource.LogWarn("Invalid controller service. Ignoring.");
 
-                    return null;
-                }
-                NatDiscoverer.TraceSource.LogInfo("UPnP Response: Router advertised a '{0}' service!!!", serviceType);
+					return null;
+				}
+				NatDiscoverer.TraceSource.LogInfo("UPnP Response: Router advertised a '{0}' service!!!", serviceType);
 
-                var location = message["Location"] ?? message["AL"];
-                var locationUri = new Uri(location);
-                NatDiscoverer.TraceSource.LogInfo("Found device at: {0}", locationUri.ToString());
+				var location = message["Location"] ?? message["AL"];
+				var locationUri = new Uri(location);
+				NatDiscoverer.TraceSource.LogInfo("Found device at: {0}", locationUri.ToString());
 
-                if (_devices.ContainsKey(locationUri))
-                {
-                    NatDiscoverer.TraceSource.LogInfo("Already found - Ignored");
-                    _devices[locationUri].Touch();
-                    return null;
-                }
+				if (_devices.ContainsKey(locationUri))
+				{
+					NatDiscoverer.TraceSource.LogInfo("Already found - Ignored");
+					_devices[locationUri].Touch();
+					return null;
+				}
 
-                // If we send 3 requests at a time, ensure we only fetch the services list once
+				// If we send 3 requests at a time, ensure we only fetch the services list once
 				// even if three responses are received
 				if (_lastFetched.ContainsKey(endpoint.Address))
 				{
@@ -150,125 +150,125 @@ namespace Open.Nat
 				}
 				_lastFetched[endpoint.Address] = DateTime.Now;
 
-                NatDiscoverer.TraceSource.LogInfo("{0}:{1}: Fetching service list", locationUri.Host, locationUri.Port );
+				NatDiscoverer.TraceSource.LogInfo("{0}:{1}: Fetching service list", locationUri.Host, locationUri.Port );
 
-                var deviceInfo = BuildUpnpNatDeviceInfo(localAddress, locationUri);
+				var deviceInfo = BuildUpnpNatDeviceInfo(localAddress, locationUri);
 
-                UpnpNatDevice device;
-                lock (_devices)
-                {
-                    device = new UpnpNatDevice(deviceInfo);
-                    if (!_devices.ContainsKey(locationUri))
-                    {
-                        _devices.Add(locationUri, device);
-                    }
-                }
-                return device;
-            }
-            catch (Exception ex)
-            {
-                NatDiscoverer.TraceSource.LogError("Unhandled exception when trying to decode a device's response. ");
-                NatDiscoverer.TraceSource.LogError("Report the issue in https://github.com/lontivero/Open.Nat/issues");
-                NatDiscoverer.TraceSource.LogError("Also copy and paste the following info:");
-                NatDiscoverer.TraceSource.LogError("-- beging ---------------------------------");
-                NatDiscoverer.TraceSource.LogError(ex.Message);
-                NatDiscoverer.TraceSource.LogError("Data string:");
-                NatDiscoverer.TraceSource.LogError(dataString ?? "No data available");
-                NatDiscoverer.TraceSource.LogError("-- end ------------------------------------");
-            }
-            return null;
-        }
+				UpnpNatDevice device;
+				lock (_devices)
+				{
+					device = new UpnpNatDevice(deviceInfo);
+					if (!_devices.ContainsKey(locationUri))
+					{
+						_devices.Add(locationUri, device);
+					}
+				}
+				return device;
+			}
+			catch (Exception ex)
+			{
+				NatDiscoverer.TraceSource.LogError("Unhandled exception when trying to decode a device's response. ");
+				NatDiscoverer.TraceSource.LogError("Report the issue in https://github.com/lontivero/Open.Nat/issues");
+				NatDiscoverer.TraceSource.LogError("Also copy and paste the following info:");
+				NatDiscoverer.TraceSource.LogError("-- beging ---------------------------------");
+				NatDiscoverer.TraceSource.LogError(ex.Message);
+				NatDiscoverer.TraceSource.LogError("Data string:");
+				NatDiscoverer.TraceSource.LogError(dataString ?? "No data available");
+				NatDiscoverer.TraceSource.LogError("-- end ------------------------------------");
+			}
+			return null;
+		}
 
-        private static bool IsValidControllerService(string serviceType)
-        {
-            var services = from serviceName in ServiceTypes
-                           let serviceUrn = string.Format("urn:schemas-upnp-org:service:{0}", serviceName)
-                           where serviceType.ContainsIgnoreCase(serviceUrn)
-                           select new {ServiceName = serviceName, ServiceUrn = serviceUrn};
+		private static bool IsValidControllerService(string serviceType)
+		{
+			var services = from serviceName in ServiceTypes
+						   let serviceUrn = string.Format("urn:schemas-upnp-org:service:{0}", serviceName)
+						   where serviceType.ContainsIgnoreCase(serviceUrn)
+						   select new {ServiceName = serviceName, ServiceUrn = serviceUrn};
 
-            return services.Any();
-        }
+			return services.Any();
+		}
 
-        private UpnpNatDeviceInfo BuildUpnpNatDeviceInfo(IPAddress localAddress, Uri location)
-        {
-            NatDiscoverer.TraceSource.LogInfo("Found device at: {0}", location.ToString());
+		private UpnpNatDeviceInfo BuildUpnpNatDeviceInfo(IPAddress localAddress, Uri location)
+		{
+			NatDiscoverer.TraceSource.LogInfo("Found device at: {0}", location.ToString());
 
-            var hostEndPoint = new IPEndPoint(IPAddress.Parse(location.Host), location.Port);
+			var hostEndPoint = new IPEndPoint(IPAddress.Parse(location.Host), location.Port);
 
-            WebResponse response = null;
-            try
-            {
+			WebResponse response = null;
+			try
+			{
 #if NET35
-                var request = WebRequest.Create(location);
+				var request = WebRequest.Create(location);
 #else
-                var request = WebRequest.CreateHttp(location);
+				var request = WebRequest.CreateHttp(location);
 #endif
-                request.Headers.Add("ACCEPT-LANGUAGE", "en");
-                request.Method = "GET";
+				request.Headers.Add("ACCEPT-LANGUAGE", "en");
+				request.Method = "GET";
 
-                response = request.GetResponse();
+				response = request.GetResponse();
 
-                var httpresponse = response as HttpWebResponse;
+				var httpresponse = response as HttpWebResponse;
 
-                if (httpresponse != null && httpresponse.StatusCode != HttpStatusCode.OK)
-                {
-                    var message = string.Format("Couldn't get services list: {0} {1}", httpresponse.StatusCode, httpresponse.StatusDescription);
-                    throw new Exception(message);
-                }
+				if (httpresponse != null && httpresponse.StatusCode != HttpStatusCode.OK)
+				{
+					var message = string.Format("Couldn't get services list: {0} {1}", httpresponse.StatusCode, httpresponse.StatusDescription);
+					throw new Exception(message);
+				}
 
-                var xmldoc = ReadXmlResponse(response);
+				var xmldoc = ReadXmlResponse(response);
 
-                NatDiscoverer.TraceSource.LogInfo("{0}: Parsed services list", hostEndPoint);
+				NatDiscoverer.TraceSource.LogInfo("{0}: Parsed services list", hostEndPoint);
 
-                var ns = new XmlNamespaceManager(xmldoc.NameTable);
-                ns.AddNamespace("ns", "urn:schemas-upnp-org:device-1-0");
-                var services = xmldoc.SelectNodes("//ns:service", ns);
+				var ns = new XmlNamespaceManager(xmldoc.NameTable);
+				ns.AddNamespace("ns", "urn:schemas-upnp-org:device-1-0");
+				var services = xmldoc.SelectNodes("//ns:service", ns);
 
-                foreach (XmlNode service in services)
-                {
-                    var serviceType = service.GetXmlElementText("serviceType");
-                    if (!IsValidControllerService(serviceType)) continue;
+				foreach (XmlNode service in services)
+				{
+					var serviceType = service.GetXmlElementText("serviceType");
+					if (!IsValidControllerService(serviceType)) continue;
 
-                    NatDiscoverer.TraceSource.LogInfo("{0}: Found service: {1}", hostEndPoint, serviceType);
+					NatDiscoverer.TraceSource.LogInfo("{0}: Found service: {1}", hostEndPoint, serviceType);
 
-                    var serviceControlUrl = service.GetXmlElementText("controlURL");
-                    NatDiscoverer.TraceSource.LogInfo("{0}: Found upnp service at: {1}", hostEndPoint, serviceControlUrl);
+					var serviceControlUrl = service.GetXmlElementText("controlURL");
+					NatDiscoverer.TraceSource.LogInfo("{0}: Found upnp service at: {1}", hostEndPoint, serviceControlUrl);
 
-                    NatDiscoverer.TraceSource.LogInfo("{0}: Handshake Complete", hostEndPoint);
-                    return new UpnpNatDeviceInfo(localAddress, location, serviceControlUrl, serviceType);
-                }
+					NatDiscoverer.TraceSource.LogInfo("{0}: Handshake Complete", hostEndPoint);
+					return new UpnpNatDeviceInfo(localAddress, location, serviceControlUrl, serviceType);
+				}
 
-                throw new Exception("No valid control service was found in the service descriptor document");
-            }
-            catch (WebException ex)
-            {
-                // Just drop the connection, FIXME: Should i retry?
-                NatDiscoverer.TraceSource.LogError("{0}: Device denied the connection attempt: {1}", hostEndPoint, ex);
-                var inner = ex.InnerException as SocketException;
-                if (inner != null)
-                {
-                    NatDiscoverer.TraceSource.LogError("{0}: ErrorCode:{1}", hostEndPoint, inner.ErrorCode);
-                    NatDiscoverer.TraceSource.LogError("Go to http://msdn.microsoft.com/en-us/library/system.net.sockets.socketerror.aspx");
-                    NatDiscoverer.TraceSource.LogError("Usually this happens. Try resetting the device and try again. If you are in a VPN, disconnect and try again.");
-                }
-                throw;
-            }
-            finally
-            {
-                if (response != null)
-                    response.Close();
-            }
-        }
+				throw new Exception("No valid control service was found in the service descriptor document");
+			}
+			catch (WebException ex)
+			{
+				// Just drop the connection, FIXME: Should i retry?
+				NatDiscoverer.TraceSource.LogError("{0}: Device denied the connection attempt: {1}", hostEndPoint, ex);
+				var inner = ex.InnerException as SocketException;
+				if (inner != null)
+				{
+					NatDiscoverer.TraceSource.LogError("{0}: ErrorCode:{1}", hostEndPoint, inner.ErrorCode);
+					NatDiscoverer.TraceSource.LogError("Go to http://msdn.microsoft.com/en-us/library/system.net.sockets.socketerror.aspx");
+					NatDiscoverer.TraceSource.LogError("Usually this happens. Try resetting the device and try again. If you are in a VPN, disconnect and try again.");
+				}
+				throw;
+			}
+			finally
+			{
+				if (response != null)
+					response.Close();
+			}
+		}
 
-        private static XmlDocument ReadXmlResponse(WebResponse response)
-        {
-            using (var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-            {
-                var servicesXml = reader.ReadToEnd();
-                var xmldoc = new XmlDocument();
-                xmldoc.LoadXml(servicesXml);
-                return xmldoc;
-            }
-        }
-    }
+		private static XmlDocument ReadXmlResponse(WebResponse response)
+		{
+			using (var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+			{
+				var servicesXml = reader.ReadToEnd();
+				var xmldoc = new XmlDocument();
+				xmldoc.LoadXml(servicesXml);
+				return xmldoc;
+			}
+		}
+	}
 }

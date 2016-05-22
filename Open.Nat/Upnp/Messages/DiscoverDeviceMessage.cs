@@ -28,22 +28,22 @@ using System.Globalization;
 
 namespace Open.Nat
 {
-    internal static class DiscoverDeviceMessage
-    {
-        /// <summary>
-        /// The message sent to discover all uPnP devices on the network
-        /// </summary>
-        /// <returns></returns>
-        public static string Encode(string serviceType)
-        {
-            const string s = "M-SEARCH * HTTP/1.1\r\n"
-                             + "HOST: 239.255.255.250:1900\r\n"
-                             + "MAN: \"ssdp:discover\"\r\n"
-                             + "MX: 3\r\n"
-                             + "ST: urn:schemas-upnp-org:service:{0}\r\n\r\n";
-            //+ "ST:upnp:rootdevice\r\n\r\n";
+	internal static class DiscoverDeviceMessage
+	{
+		/// <summary>
+		/// The message sent to discover all uPnP devices on the network
+		/// </summary>
+		/// <returns></returns>
+		public static string Encode(string serviceType)
+		{
+			const string s = "M-SEARCH * HTTP/1.1\r\n"
+							 + "HOST: 239.255.255.250:1900\r\n"
+							 + "MAN: \"ssdp:discover\"\r\n"
+							 + "MX: 3\r\n"
+							 + "ST: urn:schemas-upnp-org:service:{0}\r\n\r\n";
+			//+ "ST:upnp:rootdevice\r\n\r\n";
 
-            return string.Format(CultureInfo.InvariantCulture, s, serviceType);
-        }
-    }
+			return string.Format(CultureInfo.InvariantCulture, s, serviceType);
+		}
+	}
 }

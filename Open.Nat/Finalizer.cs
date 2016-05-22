@@ -25,13 +25,13 @@
 //
 namespace Open.Nat
 {
-    sealed class Finalizer 
-    {
-        ~Finalizer() 
-        {
-            NatDiscoverer.TraceSource.LogInfo("Closing ports opened in this session");
-            NatDiscoverer.RenewTimer.Dispose();
-            NatDiscoverer.ReleaseSessionMappings();
-        }
-    }
+	sealed class Finalizer 
+	{
+		~Finalizer() 
+		{
+			NatDiscoverer.TraceSource.LogInfo("Closing ports opened in this session");
+			NatDiscoverer.RenewTimer.Dispose();
+			NatDiscoverer.ReleaseSessionMappings();
+		}
+	}
 }

@@ -34,181 +34,181 @@ using System.Xml;
 
 namespace Open.Nat
 {
-    internal static class StreamExtensions
-    {
-        internal static string ReadAsMany(this StreamReader stream, int bytesToRead)
-        {
-            var buffer = new char[bytesToRead];
-            stream.ReadBlock(buffer, 0, bytesToRead);
-            return new string(buffer);
-        }
+	internal static class StreamExtensions
+	{
+		internal static string ReadAsMany(this StreamReader stream, int bytesToRead)
+		{
+			var buffer = new char[bytesToRead];
+			stream.ReadBlock(buffer, 0, bytesToRead);
+			return new string(buffer);
+		}
 
-        internal static string GetXmlElementText(this XmlNode node, string elementName)
-        {
-            XmlElement element = node[elementName];
-            return element != null ? element.InnerText : string.Empty;
-        }
+		internal static string GetXmlElementText(this XmlNode node, string elementName)
+		{
+			XmlElement element = node[elementName];
+			return element != null ? element.InnerText : string.Empty;
+		}
 
-        internal static bool ContainsIgnoreCase(this string s, string pattern)
-        {
-            return s.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0;
-        }
+		internal static bool ContainsIgnoreCase(this string s, string pattern)
+		{
+			return s.IndexOf(pattern, StringComparison.OrdinalIgnoreCase) >= 0;
+		}
 
-        internal static void LogInfo(this TraceSource source, string format, params object[] args)
-        {
-            source.TraceEvent(TraceEventType.Information, 0, format, args);
-        }
+		internal static void LogInfo(this TraceSource source, string format, params object[] args)
+		{
+			source.TraceEvent(TraceEventType.Information, 0, format, args);
+		}
 
-        internal static void LogWarn(this TraceSource source, string format, params object[] args)
-        {
-            source.TraceEvent(TraceEventType.Warning, 0, format, args);
-        }
+		internal static void LogWarn(this TraceSource source, string format, params object[] args)
+		{
+			source.TraceEvent(TraceEventType.Warning, 0, format, args);
+		}
 
-        internal static void LogError(this TraceSource source, string format, params object[] args)
-        {
-            source.TraceEvent(TraceEventType.Error, 0, format, args);
-        }
+		internal static void LogError(this TraceSource source, string format, params object[] args)
+		{
+			source.TraceEvent(TraceEventType.Error, 0, format, args);
+		}
 
-        internal static string ToPrintableXml(this XmlDocument document)
-        {
-            using (var stream = new MemoryStream())
-            {
-                using (var writer = new XmlTextWriter(stream, Encoding.Unicode))
-                {
-                    try
-                    {
-                        writer.Formatting = Formatting.Indented;
+		internal static string ToPrintableXml(this XmlDocument document)
+		{
+			using (var stream = new MemoryStream())
+			{
+				using (var writer = new XmlTextWriter(stream, Encoding.Unicode))
+				{
+					try
+					{
+						writer.Formatting = Formatting.Indented;
 
-                        document.WriteContentTo(writer);
-                        writer.Flush();
-                        stream.Flush();
+						document.WriteContentTo(writer);
+						writer.Flush();
+						stream.Flush();
 
-                        // Have to rewind the MemoryStream in order to read
-                        // its contents.
-                        stream.Position = 0;
+						// Have to rewind the MemoryStream in order to read
+						// its contents.
+						stream.Position = 0;
 
-                        // Read MemoryStream contents into a StreamReader.
-                        var reader = new StreamReader(stream);
+						// Read MemoryStream contents into a StreamReader.
+						var reader = new StreamReader(stream);
 
-                        // Extract the text from the StreamReader.
-                        return reader.ReadToEnd();
-                    }
-                    catch (Exception)
-                    {
-                        return document.ToString();
-                    }
-                }
-            }
-        }
+						// Extract the text from the StreamReader.
+						return reader.ReadToEnd();
+					}
+					catch (Exception)
+					{
+						return document.ToString();
+					}
+				}
+			}
+		}
 
 #if NET35
-        public static Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
-        {
+		public static Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
+		{
 #if DEBUG
-            return task;
+			return task;
 #endif
-            var timeoutCancellationTokenSource = new CancellationTokenSource();
+			var timeoutCancellationTokenSource = new CancellationTokenSource();
 
-            return TaskExtension.WhenAny(task, TaskExtension.Delay(timeout, timeoutCancellationTokenSource.Token))
-                .ContinueWith(t =>
-                {
-                    Task completedTask = t.Result;
+			return TaskExtension.WhenAny(task, TaskExtension.Delay(timeout, timeoutCancellationTokenSource.Token))
+				.ContinueWith(t =>
+				{
+					Task completedTask = t.Result;
 
-                    if (completedTask == task)
-                    {
-                        timeoutCancellationTokenSource.Cancel();
-                        return task;
-                    }
-                    throw new TimeoutException(
-                        "The operation has timed out. The network is broken, router has gone or is too busy.");
-                }).Unwrap();
-        }
+					if (completedTask == task)
+					{
+						timeoutCancellationTokenSource.Cancel();
+						return task;
+					}
+					throw new TimeoutException(
+						"The operation has timed out. The network is broken, router has gone or is too busy.");
+				}).Unwrap();
+		}
 #else
-        public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
-        {
+		public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout)
+		{
 #if DEBUG
-            return await task;
+			return await task;
 #endif
-            var timeoutCancellationTokenSource = new CancellationTokenSource();
+			var timeoutCancellationTokenSource = new CancellationTokenSource();
 
-            Task completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
-            if (completedTask == task)
-            {
-                timeoutCancellationTokenSource.Cancel();
-                return await task;
-            }
-            throw new TimeoutException(
-                "The operation has timed out. The network is broken, router has gone or is too busy.");
-        }
+			Task completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancellationTokenSource.Token));
+			if (completedTask == task)
+			{
+				timeoutCancellationTokenSource.Cancel();
+				return await task;
+			}
+			throw new TimeoutException(
+				"The operation has timed out. The network is broken, router has gone or is too busy.");
+		}
 #endif //NET35
-    }
+	}
 
 #if NET35
-    internal static class EnumExtension
-    {
-        public static bool HasFlag(this Enum value, Enum flag)
-        {
-            int intValue = (int)(ValueType)value;
-            int intFlag = (int)(ValueType)flag;
+	internal static class EnumExtension
+	{
+		public static bool HasFlag(this Enum value, Enum flag)
+		{
+			int intValue = (int)(ValueType)value;
+			int intFlag = (int)(ValueType)flag;
 
-            return (intValue & intFlag) == intFlag;
-        }
-    }
+			return (intValue & intFlag) == intFlag;
+		}
+	}
 
-    public static class CancellationTokenSourceExtension
-    {
-        public static void CancelAfter(this CancellationTokenSource source, int millisecondsDelay)
-        {
-            if (millisecondsDelay < -1)
-            {
-                throw new ArgumentOutOfRangeException("millisecondsDelay");
-            }
-            Timer timer = new Timer(self => {
-                ((Timer)self).Dispose();
-                try
-                {
-                    source.Cancel();
-                }
-                catch (ObjectDisposedException) { }
-            });
-            timer.Change(millisecondsDelay, -1);
-        }
-    }
+	public static class CancellationTokenSourceExtension
+	{
+		public static void CancelAfter(this CancellationTokenSource source, int millisecondsDelay)
+		{
+			if (millisecondsDelay < -1)
+			{
+				throw new ArgumentOutOfRangeException("millisecondsDelay");
+			}
+			Timer timer = new Timer(self => {
+				((Timer)self).Dispose();
+				try
+				{
+					source.Cancel();
+				}
+				catch (ObjectDisposedException) { }
+			});
+			timer.Change(millisecondsDelay, -1);
+		}
+	}
 
-    public static class TaskExtension
-    {
-        public static Task Delay(TimeSpan delay, CancellationToken token)
-        {
-            long delayMs = (long)delay.TotalMilliseconds;
-            if (delayMs < -1L || delayMs > int.MaxValue)
-            {
-                throw new ArgumentOutOfRangeException("delay");
-            }
-            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+	public static class TaskExtension
+	{
+		public static Task Delay(TimeSpan delay, CancellationToken token)
+		{
+			long delayMs = (long)delay.TotalMilliseconds;
+			if (delayMs < -1L || delayMs > int.MaxValue)
+			{
+				throw new ArgumentOutOfRangeException("delay");
+			}
+			TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
 
-            Timer timer = new Timer(self =>
-            {
-                tcs.TrySetResult(null); //timer expired, attempt to move task to the completed state.
-            }, null, delayMs, -1);
+			Timer timer = new Timer(self =>
+			{
+				tcs.TrySetResult(null); //timer expired, attempt to move task to the completed state.
+			}, null, delayMs, -1);
 
-            token.Register(() =>
-            {
-                timer.Dispose(); //stop the timer
-                tcs.TrySetCanceled(); //attempt to mode task to canceled state
-            });
+			token.Register(() =>
+			{
+				timer.Dispose(); //stop the timer
+				tcs.TrySetCanceled(); //attempt to mode task to canceled state
+			});
 
-            return tcs.Task;
-        }
+			return tcs.Task;
+		}
 
-        public static Task<Task> WhenAny(params Task[] tasks)
-        {
-            return Task.Factory.ContinueWhenAny(tasks, t => t);
-        }
+		public static Task<Task> WhenAny(params Task[] tasks)
+		{
+			return Task.Factory.ContinueWhenAny(tasks, t => t);
+		}
 
-        public static Task WhenAll(params Task[] tasks)
-        {
-            return Task.Factory.ContinueWhenAll(tasks, t => t);
-        }
-    }
+		public static Task WhenAll(params Task[] tasks)
+		{
+			return Task.Factory.ContinueWhenAll(tasks, t => t);
+		}
+	}
 #endif //NET35
 }

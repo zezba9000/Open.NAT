@@ -29,12 +29,12 @@ using System.Runtime.Serialization;
 
 namespace Open.Nat
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    [Serializable]
-    public class NatDeviceNotFoundException : Exception
-    {
+	/// <summary>
+	/// 
+	/// </summary>
+	[Serializable]
+	public class NatDeviceNotFoundException : Exception
+	{
 		/// <summary>
 		/// 
 		/// </summary>
@@ -61,9 +61,9 @@ namespace Open.Nat
 		{
 		}
 
-        protected NatDeviceNotFoundException(SerializationInfo info, StreamingContext context)
+		protected NatDeviceNotFoundException(SerializationInfo info, StreamingContext context)
 			: base(info, context)
 		{
 		}
-    }
+	}
 }
