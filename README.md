@@ -50,6 +50,7 @@ For more info please check the [Wiki](https://github.com/lontivero/Open.Nat/wiki
 Awesome software using Open.NAT
 -------------
 + [War For The Overworld](https://wftogame.com/)  
++ [OpenRA](http://www.openra.net/)
 + [Interstellar RIFT](http://www.interstellarrift.com/)
 + [The Kindred](http://thekindred.net/)
 
