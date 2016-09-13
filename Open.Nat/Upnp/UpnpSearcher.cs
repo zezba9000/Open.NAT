@@ -54,12 +54,12 @@ namespace Open.Nat
 		internal UpnpSearcher(IIPAddressesProvider ipprovider)
 		{
 			_ipprovider = ipprovider;
-			Sockets = CreateSockets();
+			UdpClients = CreateUdpClients();
 			_devices = new Dictionary<Uri, NatDevice>();
 			_lastFetched = new Dictionary<IPAddress, DateTime>();
 		}
 
-		private List<UdpClient> CreateSockets()
+		private List<UdpClient> CreateUdpClients()
 		{
 			var clients = new List<UdpClient>();
 			try
@@ -87,25 +87,58 @@ namespace Open.Nat
 
 		protected override void Discover(UdpClient client, CancellationToken cancelationToken)
 		{
-			var multicastAddress = Socket.OSSupportsIPv6 ? WellKnownConstants.IPv6MulticastAddress : WellKnownConstants.IPv4MulticastAddress;
+			// for testing use: 
+			//    <code>var ip = IPAddress.Broadcast;</code>
+			Discover(client, WellKnownConstants.IPv4MulticastAddress, cancelationToken);
+			if (Socket.OSSupportsIPv6)
+			{
+				Discover(client, WellKnownConstants.IPv6LinkLocalMulticastAddress, cancelationToken);
+				Discover(client, WellKnownConstants.IPv6LinkSiteMulticastAddress, cancelationToken);
+			}
+		}
+
+		private void Discover(UdpClient client, IPAddress address, CancellationToken cancelationToken)
+		{
+			if (!IsValidClient(client.Client, address)) return;
+			
 			NextSearch = DateTime.UtcNow.AddSeconds(1);
-			var searchEndpoint = new IPEndPoint(
-				multicastAddress
-				, 1900);
+			var searchEndpoint = new IPEndPoint(address, 1900);
 
 			foreach (var serviceType in ServiceTypes)
 			{
-				var datax = DiscoverDeviceMessage.Encode(serviceType);
+				var datax = DiscoverDeviceMessage.Encode(serviceType, address);
 				var data = Encoding.ASCII.GetBytes(datax);
 
 				// UDP is unreliable, so send 3 requests at a time (per Upnp spec, sec 1.1.2)
 				// Yes, however it works perfectly well with just 1 request.
-				for (var i = 0; i < 2; i++)
+				for (var i = 0; i < 3; i++)
 				{
 					if (cancelationToken.IsCancellationRequested) return;
 					client.Send(data, data.Length, searchEndpoint);
 				}
 			}
+		}
+
+		private bool IsValidClient(Socket socket, IPAddress address)
+		{
+			var endpoint = (IPEndPoint) socket.LocalEndPoint;
+			if (socket.AddressFamily != address.AddressFamily) return false;
+
+			switch (socket.AddressFamily)
+			{
+				case AddressFamily.InterNetwork:
+					socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, endpoint.Address.GetAddressBytes());
+					return true;
+				case AddressFamily.InterNetworkV6:
+					if (endpoint.Address.IsIPv6LinkLocal && !Equals(address, WellKnownConstants.IPv6LinkLocalMulticastAddress))
+						return false;
+					if (!endpoint.Address.IsIPv6LinkLocal && !Equals(address, WellKnownConstants.IPv6LinkSiteMulticastAddress))
+						return false;
+
+					socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastInterface, BitConverter.GetBytes((int)endpoint.Address.ScopeId));
+					return true;
+			}
+			return false;
 		}
 
 		public override NatDevice AnalyseReceivedResponse(IPAddress localAddress, byte[] response, IPEndPoint endpoint)

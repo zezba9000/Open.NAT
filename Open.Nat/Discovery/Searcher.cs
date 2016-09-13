@@ -39,7 +39,7 @@ namespace Open.Nat
 	internal abstract class Searcher
 	{
 		private readonly List<NatDevice> _devices = new List<NatDevice>(); 
-		protected List<UdpClient> Sockets;
+		protected List<UdpClient> UdpClients;
 		public EventHandler<DeviceEventArgs> DeviceFound;
 		internal DateTime NextSearch = DateTime.UtcNow;
 
@@ -69,8 +69,8 @@ namespace Open.Nat
 						Discover(cancelationToken);
 						Receive(cancelationToken);
 					}
-					CloseSockets();
-				}, cancelationToken);
+					CloseUdpClients();
+				}, null, cancelationToken);
 			return _devices;
 		}
 #endif
@@ -79,7 +79,7 @@ namespace Open.Nat
 		{
 			if(DateTime.UtcNow < NextSearch) return;
 
-			foreach (var socket in Sockets)
+			foreach (var socket in UdpClients)
 			{
 				try
 				{
@@ -95,7 +95,7 @@ namespace Open.Nat
 
 		private void Receive(CancellationToken cancelationToken)
 		{
-			foreach (var client in Sockets.Where(x=>x.Available>0))
+			foreach (var client in UdpClients.Where(x=>x.Available>0))
 			{
 				if(cancelationToken.IsCancellationRequested) return;
 
@@ -113,9 +113,9 @@ namespace Open.Nat
 
 		public abstract NatDevice AnalyseReceivedResponse(IPAddress localAddress, byte[] response, IPEndPoint endpoint);
 
-		public void CloseSockets()
+		public void CloseUdpClients()
 		{
-			foreach (var udpClient in Sockets)
+			foreach (var udpClient in UdpClients)
 			{
 				udpClient.Close();
 			}

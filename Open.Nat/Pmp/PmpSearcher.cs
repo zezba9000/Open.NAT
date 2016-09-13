@@ -50,7 +50,7 @@ namespace Open.Nat
 
 		private void CreateSocketsAndAddGateways()
 		{
-			Sockets = new List<UdpClient>();
+			UdpClients = new List<UdpClient>();
 			_gatewayLists = new Dictionary<UdpClient, IEnumerable<IPEndPoint>>();
 
 			try
@@ -82,7 +82,7 @@ namespace Open.Nat
 					}
 
 					_gatewayLists.Add(client, gatewayList);
-					Sockets.Add(client);
+					UdpClients.Add(client);
 				}
 			}
 			catch (Exception e)

@@ -25,6 +25,8 @@
 //
 
 using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Open.Nat
 {
@@ -34,13 +36,17 @@ namespace Open.Nat
 		/// The message sent to discover all uPnP devices on the network
 		/// </summary>
 		/// <returns></returns>
-		public static string Encode(string serviceType)
+		public static string Encode(string serviceType, IPAddress address)
 		{
-			const string s = "M-SEARCH * HTTP/1.1\r\n"
-							 + "HOST: 239.255.255.250:1900\r\n"
-							 + "MAN: \"ssdp:discover\"\r\n"
-							 + "MX: 3\r\n"
-							 + "ST: urn:schemas-upnp-org:service:{0}\r\n\r\n";
+			var fmtAddress = string.Format(
+				address.AddressFamily == AddressFamily.InterNetwork ? "{0}" : "[{0}]",
+				address);
+
+			string s = "M-SEARCH * HTTP/1.1\r\n"
+						+ "HOST: " + fmtAddress + ":1900\r\n"
+						+ "MAN: \"ssdp:discover\"\r\n"
+						+ "MX: 3\r\n"
+						+ "ST: urn:schemas-upnp-org:service:{0}\r\n\r\n";
 			//+ "ST:upnp:rootdevice\r\n\r\n";
 
 			return string.Format(CultureInfo.InvariantCulture, s, serviceType);
