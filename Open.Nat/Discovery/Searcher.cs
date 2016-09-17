@@ -54,7 +54,7 @@ namespace Open.Nat
 					Discover(cancelationToken);
 					Receive(cancelationToken);
 				}
-				CloseSockets();
+				CloseUdpClients();
 			}, cancelationToken)
 			.ContinueWith<IEnumerable<NatDevice>>((Task task) => _devices);
 		}
