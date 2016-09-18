@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Open.Nat.UnitTests
 {
-	[TestFixture]
+	[TestClass]
 	public class UpnpNatDeviceInfoTests
 	{
-		[Test]
+		[TestMethod]
 		public void x()
 		{
 			var info = new UpnpNatDeviceInfo(IPAddress.Loopback, new Uri("http://127.0.0.1:3221"), "/control?WANIPConnection", null);

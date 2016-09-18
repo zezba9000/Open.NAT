@@ -2,17 +2,17 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Open.Nat.Tests
 {
-	[TestFixture]
+	[TestClass]
 	public class InternetProtocolV6Tests
 	{
 		private UpnpMockServer _server;
 		private ServerConfiguration _cfg;
 
-		[SetUp]
+		[TestInitialize]
 		public void Setup()
 		{
 			_cfg = new ServerConfiguration();
@@ -23,13 +23,13 @@ namespace Open.Nat.Tests
 			_server.Start();
 		}
 
-		[TearDown]
+		[TestCleanup]
 		public void TearDown()
 		{
 			_server.Dispose();
 		}
 
-		[Test]
+		[TestMethod]
 		public async Task Connect()
 		{
 			var nat = new NatDiscoverer();
@@ -64,7 +64,7 @@ namespace Open.Nat.Tests
 			};
 
 			var device = await nat.DiscoverDeviceAsync(PortMapper.Upnp, cts);
-			Assert.NotNull(device);
+			Assert.IsNotNull(device);
 
 			var ip = await device.GetExternalIPAsync();
 			Assert.AreEqual(IPAddress.Parse("FE80::0202:B3FF:FE1E:8329"), ip);
