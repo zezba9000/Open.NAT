@@ -56,17 +56,39 @@ namespace Open.Nat
 
 		internal static void LogInfo(this TraceSource source, string format, params object[] args)
 		{
-			source.TraceEvent(TraceEventType.Information, 0, format, args);
+			try
+			{
+				source.TraceEvent(TraceEventType.Information, 0, format, args);
+			}
+			catch (ObjectDisposedException)
+			{
+				source.Switch.Level = SourceLevels.Off;
+			}
 		}
 
 		internal static void LogWarn(this TraceSource source, string format, params object[] args)
 		{
-			source.TraceEvent(TraceEventType.Warning, 0, format, args);
+			try
+			{
+				source.TraceEvent(TraceEventType.Warning, 0, format, args);
+			}
+			catch (ObjectDisposedException)
+			{
+				source.Switch.Level = SourceLevels.Off;
+			}
 		}
+
 
 		internal static void LogError(this TraceSource source, string format, params object[] args)
 		{
-			source.TraceEvent(TraceEventType.Error, 0, format, args);
+			try
+			{
+				source.TraceEvent(TraceEventType.Error, 0, format, args);
+			}
+			catch (ObjectDisposedException)
+			{
+				source.Switch.Level = SourceLevels.Off;
+			}
 		}
 
 		internal static string ToPrintableXml(this XmlDocument document)
