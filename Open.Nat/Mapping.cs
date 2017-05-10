@@ -187,7 +187,7 @@ namespace Open.Nat
 		/// This constructor initializes a Permanent mapping.
 		/// </remarks>
 		public Mapping(Protocol protocol, int privatePort, int publicPort, string description)
-			: this(protocol, IPAddress.None, privatePort, publicPort, int.MaxValue, description)
+			: this(protocol, IPAddress.None, privatePort, publicPort, 0, description)
 		{
 		}
 
