@@ -6,6 +6,7 @@
 bin/
 obj/
 packages/
+.vs/
 
 # Ignore VS files
 *.user
