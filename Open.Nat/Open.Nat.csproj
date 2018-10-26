@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net35;net45;net451;net452;net46;net461;net462;net47;net471</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net35;net45;net472</TargetFrameworks>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <PackageId>Open.Nat</PackageId>
     <Authors>Alan McGovern, Ben Motmans, Lucas Ontivero</Authors>
@@ -17,7 +17,6 @@
     <InternalsVisibleTo>Open.Nat.UnitTests,PublicKey=00240000048000009400000006020000002400005253413100040000010001004de491ec95076f7054ac0562395232c4c351bce7037c7e266a5cc5dc6c60738fe649e06513ca1d58edec8e6a60e969887403a09ae158a007a592f650fe98912e7029e112e61494a47eff16138b62390241e1d8d45076ac3af77b47fa67d40ba1928a37ebe073415785a23ae87b6119f63f78f04cb3b8ea280dfbf3d6df437fbf</InternalsVisibleTo>
   </PropertyGroup>
   <PropertyGroup>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Open.Nat.snk</AssemblyOriginatorKeyFile>
     <RepositoryUrl>https://github.com/lontivero/Open.NAT</RepositoryUrl>
