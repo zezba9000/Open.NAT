@@ -3,53 +3,35 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Open.Nat.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug 3.5|AnyCPU'">
-    <OutputPath>bin\Debug\net35\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
-    <ProjectGuid>{7A65D2F2-BFB5-4BE1-A54D-484A394DE745}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Open.Nat.UnitTests</RootNamespace>
-    <AssemblyName>Open.Nat.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug 4.5|AnyCPU'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug\net45\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ProjectGuid>{7A65D2F2-BFB5-4BE1-A54D-484A394DE745}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Open.Nat.UnitTests</RootNamespace>
     <AssemblyName>Open.Nat.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release 3.5|AnyCPU'">
-    <OutputPath>bin\Release\net35\</OutputPath>
-    <DefineConstants>NET35</DefineConstants>
-    <ProjectGuid>{7A65D2F2-BFB5-4BE1-A54D-484A394DE745}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Open.Nat.UnitTests</RootNamespace>
-    <AssemblyName>Open.Nat.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release 4.5|AnyCPU'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\net45\</OutputPath>
-    <DefineConstants>NET45</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ProjectGuid>{7A65D2F2-BFB5-4BE1-A54D-484A394DE745}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Open.Nat.UnitTests</RootNamespace>
     <AssemblyName>Open.Nat.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -63,10 +45,6 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Threading, Version=1.0.2856.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" Condition="'$(Configuration)|$(Platform)' == 'Release 3.5|AnyCPU' OR '$(Configuration)|$(Platform)' == 'Debug 3.5|AnyCPU'">
-      <HintPath>..\packages\TaskParallelLibrary.1.0.2856.0\lib\Net35\System.Threading.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InternetProtocolV6Tests.cs" />
@@ -78,9 +56,9 @@
     <None Include="Open.Nat.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Open.Nat\Open.Nat.csproj">
-      <Project>{F5D74163-145F-47BF-83DC-D0E07249C6CA}</Project>
-      <Name>Open.Nat</Name>
+    <ProjectReference Include="..\Open.NAT.NETFW\Open.NAT.NETFW.csproj">
+      <Project>{8ec49dd3-a6e9-4486-996b-f4b58fb20ffe}</Project>
+      <Name>Open.NAT.NETFW</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

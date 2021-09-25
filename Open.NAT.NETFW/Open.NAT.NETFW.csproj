@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8EC49DD3-A6E9-4486-996B-F4B58FB20FFE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Open.NAT.NETFW</RootNamespace>
+    <AssemblyName>Open.NAT.NETFW</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Common\AssemblyInfoAdditions.cs">
+      <Link>AssemblyInfoAdditions.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\DeviceEventArgs.cs">
+      <Link>DeviceEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\Finalizer.cs">
+      <Link>Finalizer.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\Guard.cs">
+      <Link>Guard.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\IIPAddressesProvider.cs">
+      <Link>IIPAddressesProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\IPAddressesProvider.cs">
+      <Link>IPAddressesProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\ISearcher.cs">
+      <Link>ISearcher.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\Mapping.cs">
+      <Link>Mapping.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\MappingException.cs">
+      <Link>MappingException.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\NatDevice.cs">
+      <Link>NatDevice.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\NatDeviceNotFoundException.cs">
+      <Link>NatDeviceNotFoundException.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\NatDiscoverer.cs">
+      <Link>NatDiscoverer.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\PMP\PmpConstants.cs">
+      <Link>PMP\PmpConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\PMP\PmpNatDevice.cs">
+      <Link>PMP\PmpNatDevice.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\PMP\PmpSearcher.cs">
+      <Link>PMP\PmpSearcher.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\PortMapper.cs">
+      <Link>PortMapper.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\ProtocolType.cs">
+      <Link>ProtocolType.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\Searcher.cs">
+      <Link>Searcher.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\DiscoveryResponseMessage.cs">
+      <Link>UPNP\DiscoveryResponseMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\DiscoverDeviceMessage.cs">
+      <Link>UPNP\Messages\DiscoverDeviceMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Requests\CreatePortMappingMessage.cs">
+      <Link>UPNP\Messages\Requests\CreatePortMappingMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Requests\DeletePortMappingMessage.cs">
+      <Link>UPNP\Messages\Requests\DeletePortMappingMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Requests\GetExternalIPAddressMessage.cs">
+      <Link>UPNP\Messages\Requests\GetExternalIPAddressMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Requests\GetGenericPortMappingEntry.cs">
+      <Link>UPNP\Messages\Requests\GetGenericPortMappingEntry.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Requests\GetSpecificPortMappingEntryMessage.cs">
+      <Link>UPNP\Messages\Requests\GetSpecificPortMappingEntryMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Responses\AddPortMappingResponseMessage.cs">
+      <Link>UPNP\Messages\Responses\AddPortMappingResponseMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Responses\DeletePortMappingResponseMessage.cs">
+      <Link>UPNP\Messages\Responses\DeletePortMappingResponseMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Responses\GetExternalIPAddressResponseMessage.cs">
+      <Link>UPNP\Messages\Responses\GetExternalIPAddressResponseMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\Messages\Responses\GetGenericPortMappingEntryResponseMessage.cs">
+      <Link>UPNP\Messages\Responses\GetGenericPortMappingEntryResponseMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\RequestMessageBase.cs">
+      <Link>UPNP\RequestMessageBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\ResponseMessageBase.cs">
+      <Link>UPNP\ResponseMessageBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\SoapClient.cs">
+      <Link>UPNP\SoapClient.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\UpnpConstants.cs">
+      <Link>UPNP\UpnpConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\UpnpNatDevice.cs">
+      <Link>UPNP\UpnpNatDevice.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\UpnpNatDeviceInfo.cs">
+      <Link>UPNP\UpnpNatDeviceInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\UPNP\UpnpSearcher.cs">
+      <Link>UPNP\UpnpSearcher.cs</Link>
+    </Compile>
+    <Compile Include="..\Common\WellKnownConstants.cs">
+      <Link>WellKnownConstants.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
