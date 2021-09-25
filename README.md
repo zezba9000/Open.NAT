@@ -1,4 +1,5 @@
-# NOTE: this fork compiles code to .NET 5, .NET Standard 2.0 & .NET 4.8 targets
+## NOTE: this fork compiles code to .NET 5, .NET Standard 2.0 & .NET Framework 4.8 targets
+---------------
 
 ![Logo](https://github.com/lontivero/Open.Nat/raw/gh-pages/images/logos/128.jpg)
 
