@@ -159,8 +159,9 @@ namespace Open.Nat
 			try
 			{
 				var message = new CreatePortMappingRequestMessage(mapping);
+				var xml = message.ToXml();
 				await _soapClient
-					.InvokeAsync("AddPortMapping", message.ToXml())
+					.InvokeAsync("AddPortMapping", xml)
 					.TimeoutAfter(TimeSpan.FromSeconds(4));
 				RegisterMapping(mapping);
 			}

@@ -122,10 +122,8 @@ namespace Open.Nat
 
 				var reader = new StreamReader(stream, Encoding.UTF8);
 
-				var responseBody = contentLength != -1
-									? reader.ReadAsMany((int) contentLength)
-									: reader.ReadToEnd();
-
+				var responseBody = contentLength != -1 ? reader.ReadAsMany((int) contentLength) : reader.ReadToEnd();
+				responseBody = responseBody.Trim();// some routers return empty space (remove it)
 				var responseXml = GetXmlDocument(responseBody);
 
 				response.Close();

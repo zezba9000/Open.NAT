@@ -42,9 +42,7 @@ namespace Open.Nat
 
 		public override IDictionary<string, object> ToXml()
 		{
-			string remoteHost = _mapping.PublicIP.Equals(IPAddress.None)
-									? string.Empty
-									: _mapping.PublicIP.ToString();
+			string remoteHost = _mapping.PublicIP.Equals(IPAddress.None) ? string.Empty : _mapping.PublicIP.ToString();
 
 			return new Dictionary<string, object>
 					   {
